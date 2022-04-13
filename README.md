@@ -70,11 +70,19 @@ Bofry/host-fasthttp 快速入門指南
 
 4. 安裝所需的 go tool
 
+    - Go 1.15 含以前使用下面指令：
     ```bash
     go get -v github.com/Bofry/go-tools/gorun
     go get -v github.com/Bofry/go-tools/host-fasthttp
     go get -v github.com/Bofry/go-tools/gen-host-fasthttp-resource
     go get -v github.com/joho/godotenv/cmd/godotenv
+    ```
+    - Go 1.16 含以後使用下面指令：
+    ```bash
+    go install github.com/Bofry/go-tools/gorun
+    go install github.com/Bofry/go-tools/host-fasthttp
+    go install github.com/Bofry/go-tools/gen-host-fasthttp-resource
+    go install github.com/joho/godotenv/cmd/godotenv
     ```
 
 [🔝回目錄](#%e7%9b%ae%e9%8c%84)
