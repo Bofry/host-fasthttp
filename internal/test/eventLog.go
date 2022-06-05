@@ -1,7 +1,7 @@
 package test
 
 import (
-	"fmt"
+	"log"
 
 	fasthttp "github.com/Bofry/host-fasthttp"
 	"github.com/Bofry/host-fasthttp/response"
@@ -12,17 +12,17 @@ var _ fasthttp.EventLog = new(EventLog)
 type EventLog struct{}
 
 func (l *EventLog) WriteError(ctx *fasthttp.RequestCtx, err interface{}, stackTrace []byte) {
-	fmt.Println("EventLog.WriteError()")
+	log.Printf("EventLog.WriteError(): %v\n", err)
 }
 
 func (l *EventLog) WriteRequest(ctx *fasthttp.RequestCtx) {
-	fmt.Println("EventLog.WriteRequest()")
+	log.Printf("EventLog.WriteRequest(): %s %s\n", string(ctx.Method()), string(ctx.Path()))
 }
 
 func (l *EventLog) WriteResponse(ctx *fasthttp.RequestCtx, flag response.ResponseFlag) {
-	fmt.Println("EventLog.WriteResponse()")
+	log.Printf("EventLog.WriteResponse(): %d [%v]\n", ctx.Response.StatusCode(), flag)
 }
 
 func (l *EventLog) Flush() {
-	fmt.Println("EventLog.Flush()")
+	log.Println("EventLog.Flush()")
 }
