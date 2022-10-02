@@ -1,7 +1,7 @@
 package test
 
 import (
-	"fmt"
+	"log"
 
 	fasthttp "github.com/Bofry/host-fasthttp"
 )
@@ -11,6 +11,6 @@ var _ fasthttp.LoggingService = new(LoggingService)
 type LoggingService struct{}
 
 func (s *LoggingService) CreateEventLog() fasthttp.EventLog {
-	fmt.Println("CreateEventLog()")
+	log.Println("CreateEventLog()")
 	return &EventLog{}
 }

@@ -1,7 +1,7 @@
 github.com/Bofry/config v0.1.0 h1:Pqt2KYQ9609bBv8f7qhZMnXD120BLISfWXbbO7pI9lU=
 github.com/Bofry/config v0.1.0/go.mod h1:qYCNJT6dKg4JKCl38j8sAOkmePsg1Y+J8m2LsqvglFc=
-github.com/Bofry/host v0.1.0 h1:T0K6FC6EW6C2CtHuPy3ykyr0GeMXEtrNB6SXI79XnVM=
-github.com/Bofry/host v0.1.0/go.mod h1:bh86xVS7rxcL+SoN/jywU6QVqWQFkeYCr2Su+oLNJV0=
+github.com/Bofry/host v0.1.1 h1:IlHNwthlaOCHVZsX0OHFwjn41TSG0zp1CzVnB23g6pQ=
+github.com/Bofry/host v0.1.1/go.mod h1:bh86xVS7rxcL+SoN/jywU6QVqWQFkeYCr2Su+oLNJV0=
 github.com/Bofry/structproto v0.1.0 h1:Zun2V0y9WsMtYPiyvoKZKzGjKzB9Gff/6TAFXJf1jA0=
 github.com/Bofry/structproto v0.1.0/go.mod h1:ExAR9NDYUXZOVlAJrz2oavvVxjaegV7Mb91HQcQYWLA=
 github.com/Bofry/types v0.1.0 h1:lEM+LcPWlC1ByerJlp0cZ4tCCosR9lemVDvu9kATV1Y=

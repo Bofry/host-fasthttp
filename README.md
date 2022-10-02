@@ -85,6 +85,15 @@ Bofry/host-fasthttp 快速入門指南
     go install github.com/joho/godotenv/cmd/godotenv
     ```
 
+    - Go 1.16 含以後使用下面指令：
+    ```bash
+    go install github.com/Bofry/go-tools/gorun
+    go install github.com/Bofry/go-tools/host-fasthttp
+    go install github.com/Bofry/go-tools/gen-host-fasthttp-resource
+    go install github.com/joho/godotenv/cmd/godotenv
+    ```
+    > 🐾 see *Deprecation of 'go get' for installing executables* <sup>[🔗](https://go.dev/doc/go-get-install-deprecation)</sup>
+
 [🔝回目錄](#%e7%9b%ae%e9%8c%84)
 
 
