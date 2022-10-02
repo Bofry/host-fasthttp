@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"runtime"
 	"strings"
 
@@ -12,6 +13,9 @@ type (
 		Host            *Host
 		Config          *Config
 		ServiceProvider *ServiceProvider
+
+		Component       *MockComponent
+		ComponentRunner *MockComponentRunner
 	}
 
 	Host fasthttp.Host
@@ -34,6 +38,13 @@ type (
 		CacheClient *CacheServer
 	}
 )
+
+func (app *App) Init(conf *Config) {
+	fmt.Println("App.Init()")
+
+	app.Component = &MockComponent{}
+	app.ComponentRunner = &MockComponentRunner{prefix: "MockComponentRunner"}
+}
 
 func (provider *ServiceProvider) Init(conf *Config) {
 	provider.CacheClient = &CacheServer{

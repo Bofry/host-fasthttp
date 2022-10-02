@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/Bofry/config v0.1.0
-	github.com/Bofry/host v0.1.1-0.20220605033612-a3403c9f8491
+	github.com/Bofry/host v0.1.1
 	github.com/Bofry/structproto v0.1.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/valyala/fasthttp v1.35.0
