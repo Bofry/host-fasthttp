@@ -12,45 +12,45 @@ import (
 	"github.com/Bofry/structproto/util/reflectutil"
 )
 
-var _ structproto.StructBinder = new(ResourceManagerBinder)
+var _ structproto.StructBinder = new(RequestManagerBinder)
 
-type ResourceManagerBinder struct {
+type RequestManagerBinder struct {
 	router     internal.Router
 	appContext *host.AppContext
 }
 
-func (b *ResourceManagerBinder) Init(context *structproto.StructProtoContext) error {
+func (b *RequestManagerBinder) Init(context *structproto.StructProtoContext) error {
 	return nil
 }
 
-func (b *ResourceManagerBinder) Bind(field structproto.FieldInfo, rv reflect.Value) error {
+func (b *RequestManagerBinder) Bind(field structproto.FieldInfo, rv reflect.Value) error {
 	if !rv.IsValid() {
 		return fmt.Errorf("specifiec argument 'rv' is invalid")
 	}
 
 	// assign zero if rv is nil
-	rvResource := reflectutil.AssignZero(rv)
-	binder := &ResourceBinder{
-		resourceType: rvResource.Type().Name(),
+	rvRequestHandler := reflectutil.AssignZero(rv)
+	binder := &RequestHandlerBinder{
+		requestHandlerType: rvRequestHandler.Type().Name(),
 		components: map[string]reflect.Value{
 			host.APP_CONFIG_FIELD:           b.appContext.Config(),
 			host.APP_SERVICE_PROVIDER_FIELD: b.appContext.ServiceProvider(),
 		},
 	}
-	err := b.preformBindResource(rvResource, binder)
+	err := b.preformBindRequestHandler(rvRequestHandler, binder)
 	if err != nil {
 		return err
 	}
 
 	// register RequestHandlers
-	return b.registerRoute(field.Name(), rvResource)
+	return b.registerRoute(field.Name(), rvRequestHandler)
 }
 
-func (b *ResourceManagerBinder) Deinit(context *structproto.StructProtoContext) error {
+func (b *RequestManagerBinder) Deinit(context *structproto.StructProtoContext) error {
 	return nil
 }
 
-func (b *ResourceManagerBinder) preformBindResource(target reflect.Value, binder *ResourceBinder) error {
+func (b *RequestManagerBinder) preformBindRequestHandler(target reflect.Value, binder *RequestHandlerBinder) error {
 	prototype, err := structproto.Prototypify(target,
 		&structproto.StructProtoResolveOption{
 			TagResolver: tagresolver.NoneTagResolver,
@@ -62,13 +62,13 @@ func (b *ResourceManagerBinder) preformBindResource(target reflect.Value, binder
 	return prototype.Bind(binder)
 }
 
-func (b *ResourceManagerBinder) registerRoute(url string, rvResource reflect.Value) error {
+func (b *RequestManagerBinder) registerRoute(url string, rvRequestHandler reflect.Value) error {
 	// register RequestHandlers
-	count := rvResource.Type().NumMethod()
+	count := rvRequestHandler.Type().NumMethod()
 	for i := 0; i < count; i++ {
-		method := rvResource.Type().Method(i)
+		method := rvRequestHandler.Type().Method(i)
 
-		rvMethod := rvResource.Method(method.Index)
+		rvMethod := rvRequestHandler.Method(method.Index)
 		if isRequestHandler(rvMethod) {
 			handler := asRequestHandler(rvMethod)
 			if handler != nil {

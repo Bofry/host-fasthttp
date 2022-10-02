@@ -5,10 +5,10 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-type RootResource struct {
+type RootRequest struct {
 }
 
-func (r *RootResource) Ping(ctx *fasthttp.RequestCtx) {
+func (r *RootRequest) Ping(ctx *fasthttp.RequestCtx) {
 
 	response.Success(ctx, "text/plain", []byte("Pong"))
 }

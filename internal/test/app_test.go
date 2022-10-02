@@ -17,11 +17,11 @@ import (
 	"github.com/Bofry/host-fasthttp/response"
 )
 
-type ResourceManager struct {
-	*RootResource     `url:"/"`
-	*EchoResource     `url:"/Echo"`
-	*SettingResource  `url:"/Setting"`
-	*AccidentResource `url:"/Accident"`
+type RequestManager struct {
+	*RootRequest     `url:"/"`
+	*EchoRequest     `url:"/Echo"`
+	*SettingRequest  `url:"/Setting"`
+	*AccidentRequest `url:"/Accident"`
 }
 
 func TestApp(t *testing.T) {
@@ -43,7 +43,7 @@ func TestApp(t *testing.T) {
 	app := App{}
 	starter := fasthttp.Startup(&app).
 		Middlewares(
-			fasthttp.UseResourceManager(&ResourceManager{}),
+			fasthttp.UseRequestManager(&RequestManager{}),
 			fasthttp.UseXHttpMethodHeader(),
 			fasthttp.UseErrorHandler(func(ctx *fasthttp.RequestCtx, err interface{}) {
 				errorCount++

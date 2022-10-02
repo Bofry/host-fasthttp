@@ -6,30 +6,30 @@ import (
 	"github.com/Bofry/structproto"
 )
 
-var _ host.Middleware = new(ResourceManagerMiddleware)
+var _ host.Middleware = new(RequestManagerMiddleware)
 
-type ResourceManagerMiddleware struct {
-	ResourceManager interface{}
+type RequestManagerMiddleware struct {
+	RequestManager interface{}
 }
 
-func (m *ResourceManagerMiddleware) Init(appCtx *host.AppContext) {
+func (m *RequestManagerMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())
 		preparer     = NewFasthttpHostPreparer(fasthttphost)
 	)
 
-	binder := &ResourceManagerBinder{
+	binder := &RequestManagerBinder{
 		router:     preparer.Router(),
 		appContext: appCtx,
 	}
 
-	err := m.performBindResourceManager(m.ResourceManager, binder)
+	err := m.performBindRequestManager(m.RequestManager, binder)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (m *ResourceManagerMiddleware) performBindResourceManager(target interface{}, binder *ResourceManagerBinder) error {
+func (m *RequestManagerMiddleware) performBindRequestManager(target interface{}, binder *RequestManagerBinder) error {
 	prototype, err := structproto.Prototypify(target,
 		&structproto.StructProtoResolveOption{
 			TagName:     TAG_URL,

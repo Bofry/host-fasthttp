@@ -6,7 +6,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-type SettingResource struct {
+type SettingRequest struct {
 	ServiceProvider *ServiceProvider
 	name            string
 }
@@ -18,12 +18,12 @@ var peekFormat = `Redis:
     PoolSize: %d
 From: %s`
 
-func (r *SettingResource) Init() {
+func (r *SettingRequest) Init() {
 	fmt.Println("SettingResource.Init()")
 	r.name = "SettingResource"
 }
 
-func (r *SettingResource) Peek(ctx *fasthttp.RequestCtx) {
+func (r *SettingRequest) Peek(ctx *fasthttp.RequestCtx) {
 	fmt.Fprintf(ctx, peekFormat,
 		r.ServiceProvider.CacheClient.Host,
 		r.ServiceProvider.CacheClient.Password,

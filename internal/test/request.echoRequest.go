@@ -6,13 +6,13 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-type EchoResource struct {
+type EchoRequest struct {
 }
 
-func (r *EchoResource) Init() {
+func (r *EchoRequest) Init() {
 }
 
-func (r *EchoResource) Send(ctx *fasthttp.RequestCtx) {
+func (r *EchoRequest) Send(ctx *fasthttp.RequestCtx) {
 	args := ctx.QueryArgs()
 	input := args.Peek("input")
 	fmt.Fprintf(ctx, "ECHO: %s", string(input))

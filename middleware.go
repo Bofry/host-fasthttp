@@ -26,12 +26,16 @@ func UseLogging(service LoggingService) host.Middleware {
 }
 
 func UseResourceManager(resourceManager interface{}) host.Middleware {
-	if resourceManager == nil {
-		panic("argument 'resourceManager' cannot be nil")
+	panic("method is obsolete. Use UseRequestManager() instead.")
+}
+
+func UseRequestManager(requestManager interface{}) host.Middleware {
+	if requestManager == nil {
+		panic("argument 'requestManager' cannot be nil")
 	}
 
-	return &middleware.ResourceManagerMiddleware{
-		ResourceManager: resourceManager,
+	return &middleware.RequestManagerMiddleware{
+		RequestManager: requestManager,
 	}
 }
 
