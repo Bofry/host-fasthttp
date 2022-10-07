@@ -29,7 +29,7 @@ func (h *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverSe
 
 		recover.
 			Defer(func(err interface{}) {
-				resp := h.getResponse(ctx)
+				resp := response.GetResponseFlag(ctx)
 				if err != nil {
 					defer func() {
 						if resp != nil {
@@ -55,13 +55,4 @@ func (h *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverSe
 				h.successor.ProcessRequest(ctx, recover)
 			})
 	}
-}
-
-func (h *LoggingHandleModule) getResponse(ctx *RequestCtx) response.Response {
-	obj := ctx.UserValue(response.RESPONSE_INVARIANT_NAME)
-	v, ok := obj.(response.Response)
-	if ok {
-		return v
-	}
-	return nil
 }

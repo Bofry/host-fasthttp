@@ -2,11 +2,6 @@ package response
 
 import http "github.com/valyala/fasthttp"
 
-const (
-	// response name in RequestCtx user store
-	RESPONSE_INVARIANT_NAME string = "github.com/Bofry/host-fasthttp/response::Response"
-)
-
 func Success(ctx *http.RequestCtx, contentType string, body []byte) {
 	ctx.Success(contentType, body)
 
@@ -32,6 +27,15 @@ func Failure(ctx *http.RequestCtx, contentType string, message []byte, statusCod
 	)
 }
 
+func GetResponseFlag(ctx *http.RequestCtx) Response {
+	obj := ctx.UserValue(USER_STORE_RESPONSE_FLAG)
+	v, ok := obj.(Response)
+	if ok {
+		return v
+	}
+	return nil
+}
+
 func storeResponse(ctx *http.RequestCtx, resp Response) {
-	ctx.SetUserValue(RESPONSE_INVARIANT_NAME, resp)
+	ctx.SetUserValue(USER_STORE_RESPONSE_FLAG, resp)
 }

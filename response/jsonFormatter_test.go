@@ -7,12 +7,16 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func TestSuccess(t *testing.T) {
+func TestJsonFormatterSuccess(t *testing.T) {
 	t.Parallel()
 
 	s := &fasthttp.Server{
 		Handler: func(ctx *fasthttp.RequestCtx) {
-			Success(ctx, "text/plain", []byte("success message"))
+			JSON.Success(ctx, struct {
+				Message string `json:"message"`
+			}{
+				Message: "OK",
+			})
 
 			// check
 			{
@@ -47,12 +51,16 @@ func TestSuccess(t *testing.T) {
 		})
 }
 
-func TestFailure(t *testing.T) {
+func TestJsonFormatterFailure(t *testing.T) {
 	t.Parallel()
 
 	s := &fasthttp.Server{
 		Handler: func(ctx *fasthttp.RequestCtx) {
-			Failure(ctx, "text/plain", []byte("error message"), fasthttp.StatusBadRequest)
+			JSON.Failure(ctx, struct {
+				Message string `json:"message"`
+			}{
+				Message: "UNKNOWN_ERROR",
+			}, fasthttp.StatusBadRequest)
 
 			// check
 			{
@@ -72,11 +80,13 @@ func TestFailure(t *testing.T) {
 	}
 
 	useInmemoryServer(s,
+		// request handler
 		func(w io.Writer) {
 			if _, err := w.Write([]byte("GET / HTTP/1.1\r\nHost: g.com\r\n\r\n")); err != nil {
 				t.Fatal(err)
 			}
 		},
+		// response handler
 		func(resp fasthttp.Response) {
 			// FIXME check value
 			t.Logf("result: %v", resp.StatusCode())
