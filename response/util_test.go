@@ -11,7 +11,7 @@ import (
 func useInmemoryServer(
 	s *fasthttp.Server,
 	requestHandler func(w io.Writer),
-	responseHandler func(resp fasthttp.Response)) error {
+	responseHandler func(resp *fasthttp.Response)) error {
 
 	ln := fasthttputil.NewInmemoryListener()
 	defer ln.Close()
@@ -36,6 +36,6 @@ func useInmemoryServer(
 		return err
 	}
 
-	responseHandler(resp)
+	responseHandler(&resp)
 	return nil
 }

@@ -43,7 +43,7 @@ func TestJsonFormatterSuccess(t *testing.T) {
 			}
 		},
 		// response handler
-		func(resp fasthttp.Response) {
+		func(resp *fasthttp.Response) {
 			// t.Logf("result: %v", resp.StatusCode())
 			// t.Logf("result: %v", resp.Header.String())
 			// t.Logf("result: %v", string(resp.Body()))
@@ -105,7 +105,7 @@ func TestJsonFormatterFailure(t *testing.T) {
 			}
 		},
 		// response handler
-		func(resp fasthttp.Response) {
+		func(resp *fasthttp.Response) {
 			// t.Logf("result: %v", resp.StatusCode())
 			// t.Logf("result: %v", resp.Header.String())
 			// t.Logf("result: %v", string(resp.Body()))
