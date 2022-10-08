@@ -217,6 +217,21 @@ func TestApp_Sanity(t *testing.T) {
 		}
 	}
 	{
+		req, err := http.NewRequest("FAIL", "http://127.0.0.1:10094/Json", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		_, _ = client.Do(req)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 400 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != `{"message":"UNKNOWN_ERROR"}` {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
+	}
+	{
 		req, err := http.NewRequest("PING", "http://127.0.0.1:10094/Text", nil)
 		if err != nil {
 			t.Error(err)
@@ -229,6 +244,21 @@ func TestApp_Sanity(t *testing.T) {
 		body, err := ioutil.ReadAll(resp.Body)
 		if string(body) != "OK" {
 			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("FAIL", "http://127.0.0.1:10094/Text", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		_, _ = client.Do(req)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 400 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "UNKNOWN_ERROR" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "UNKNOWN_ERROR", string(body))
 		}
 	}
 

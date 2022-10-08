@@ -18,3 +18,11 @@ func (r *JsonRequest) Ping(ctx *fasthttp.RequestCtx) {
 		Message: "OK",
 	})
 }
+
+func (r *JsonRequest) Fail(ctx *fasthttp.RequestCtx) {
+	response.Json.Failure(ctx, struct {
+		Message string `json:"message"`
+	}{
+		Message: "UNKNOWN_ERROR",
+	}, fasthttp.StatusBadRequest)
+}
