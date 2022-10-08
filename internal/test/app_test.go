@@ -22,9 +22,11 @@ type RequestManager struct {
 	*EchoRequest     `url:"/Echo"`
 	*SettingRequest  `url:"/Setting"`
 	*AccidentRequest `url:"/Accident"`
+	*JsonRequest     `url:"/Json"`
+	*TextRequest     `url:"/Text"`
 }
 
-func TestApp(t *testing.T) {
+func TestApp_Sanity(t *testing.T) {
 	/* like
 	$ export REDIS_HOST=kubernate-redis:26379
 	$ export REDIS_PASSWORD=1234
@@ -198,6 +200,36 @@ func TestApp(t *testing.T) {
 			t.Errorf("assert 'errorBuffer':: expected '%v', got '%v'", expectedErrorString, errorBuffer.String())
 		}
 		errorBuffer.Reset()
+	}
+	{
+		req, err := http.NewRequest("PING", "http://127.0.0.1:10094/Json", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		_, _ = client.Do(req)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != `{"message":"OK"}` {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("PING", "http://127.0.0.1:10094/Text", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		_, _ = client.Do(req)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "OK" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
 	}
 
 	select {

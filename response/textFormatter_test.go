@@ -7,16 +7,12 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func TestJsonFormatterSuccess(t *testing.T) {
+func TestTextFormatterSuccess(t *testing.T) {
 	t.Parallel()
 
 	s := &fasthttp.Server{
 		Handler: func(ctx *fasthttp.RequestCtx) {
-			Json.Success(ctx, struct {
-				Message string `json:"message"`
-			}{
-				Message: "OK",
-			})
+			Text.Success(ctx, "OK")
 
 			// check
 			{
@@ -53,14 +49,14 @@ func TestJsonFormatterSuccess(t *testing.T) {
 				t.Errorf("status code: except %v, got %v", exceptedStatusCode, resp.StatusCode())
 			}
 			var (
-				exceptedContentType = "application/json; charset=utf-8"
+				exceptedContentType = "text/plain; charset=utf-8"
 				actualContentType   = string(resp.Header.Peek("Content-Type"))
 			)
 			if actualContentType != exceptedContentType {
 				t.Errorf("content-type: except %v, got %v", exceptedContentType, actualContentType)
 			}
 			var (
-				exceptedBody = `{"message":"OK"}`
+				exceptedBody = "OK"
 				actualBody   = string(resp.Body())
 			)
 			if actualBody != exceptedBody {
@@ -69,16 +65,12 @@ func TestJsonFormatterSuccess(t *testing.T) {
 		})
 }
 
-func TestJsonFormatterFailure(t *testing.T) {
+func TestTextFormatterFailure(t *testing.T) {
 	t.Parallel()
 
 	s := &fasthttp.Server{
 		Handler: func(ctx *fasthttp.RequestCtx) {
-			Json.Failure(ctx, struct {
-				Message string `json:"message"`
-			}{
-				Message: "UNKNOWN_ERROR",
-			}, fasthttp.StatusBadRequest)
+			Text.Failure(ctx, "UNKNOWN_ERROR", fasthttp.StatusBadRequest)
 
 			// check
 			{
@@ -115,14 +107,14 @@ func TestJsonFormatterFailure(t *testing.T) {
 				t.Errorf("status code: except %v, got %v", exceptedStatusCode, resp.StatusCode())
 			}
 			var (
-				exceptedContentType = "application/json; charset=utf-8"
+				exceptedContentType = "text/plain; charset=utf-8"
 				actualContentType   = string(resp.Header.Peek("Content-Type"))
 			)
 			if actualContentType != exceptedContentType {
 				t.Errorf("content-type: except %v, got %v", exceptedContentType, actualContentType)
 			}
 			var (
-				exceptedBody = `{"message":"UNKNOWN_ERROR"}`
+				exceptedBody = "UNKNOWN_ERROR"
 				actualBody   = string(resp.Body())
 			)
 			if actualBody != exceptedBody {

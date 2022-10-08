@@ -15,10 +15,12 @@ const (
 	USER_STORE_RESPONSE_FLAG string = "github.com/Bofry/host-fasthttp/response::Response"
 
 	CONTENT_TYPE_JSON string = "application/json; charset=utf-8"
+	CONTENT_TYPE_TEXT string = "text/plain; charset=utf-8"
 )
 
 const (
-	JSON = JsonFormatter("")
+	Json = JsonFormatter("")
+	Text = TextFormatter("")
 )
 
 type ResponseFlag int
