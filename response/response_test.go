@@ -40,10 +40,28 @@ func TestSuccess(t *testing.T) {
 		},
 		// response handler
 		func(resp fasthttp.Response) {
-			// FIXME check value
-			t.Logf("result: %v", resp.StatusCode())
-			t.Logf("result: %v", resp.Header.String())
-			t.Logf("result: %v", string(resp.Body()))
+			// t.Logf("result: %v", resp.StatusCode())
+			// t.Logf("result: %v", resp.Header.String())
+			// t.Logf("result: %v", string(resp.Body()))
+
+			var exceptedStatusCode = 200
+			if resp.StatusCode() != exceptedStatusCode {
+				t.Errorf("status code: except %v, got %v", exceptedStatusCode, resp.StatusCode())
+			}
+			var (
+				exceptedContentType = "text/plain"
+				actualContentType   = string(resp.Header.Peek("Content-Type"))
+			)
+			if actualContentType != exceptedContentType {
+				t.Errorf("content-type: except %v, got %v", exceptedContentType, actualContentType)
+			}
+			var (
+				exceptedBody = "success message"
+				actualBody   = string(resp.Body())
+			)
+			if actualBody != exceptedBody {
+				t.Errorf("body: except %v, got %v", exceptedBody, actualBody)
+			}
 		})
 }
 
@@ -78,9 +96,27 @@ func TestFailure(t *testing.T) {
 			}
 		},
 		func(resp fasthttp.Response) {
-			// FIXME check value
-			t.Logf("result: %v", resp.StatusCode())
-			t.Logf("result: %v", resp.Header.String())
-			t.Logf("result: %v", string(resp.Body()))
+			// t.Logf("result: %v", resp.StatusCode())
+			// t.Logf("result: %v", resp.Header.String())
+			// t.Logf("result: %v", string(resp.Body()))
+
+			var exceptedStatusCode = 400
+			if resp.StatusCode() != exceptedStatusCode {
+				t.Errorf("status code: except %v, got %v", exceptedStatusCode, resp.StatusCode())
+			}
+			var (
+				exceptedContentType = "text/plain"
+				actualContentType   = string(resp.Header.Peek("Content-Type"))
+			)
+			if actualContentType != exceptedContentType {
+				t.Errorf("content-type: except %v, got %v", exceptedContentType, actualContentType)
+			}
+			var (
+				exceptedBody = "error message"
+				actualBody   = string(resp.Body())
+			)
+			if actualBody != exceptedBody {
+				t.Errorf("body: except %v, got %v", exceptedBody, actualBody)
+			}
 		})
 }
