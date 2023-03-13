@@ -11,6 +11,7 @@ type RewriterMiddleware struct {
 	Handler RewriteHandler
 }
 
+// Init implements internal.Middleware
 func (m *RewriterMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())

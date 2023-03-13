@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"log"
 	"os"
 	"reflect"
@@ -50,6 +51,8 @@ type (
 		CanSetSuccessor() bool
 		SetSuccessor(successor RequestHandleModule)
 		ProcessRequest(ctx *RequestCtx, recover *RecoverService)
+		OnInitComplete()
+		OnStop(ctx context.Context) error
 	}
 )
 

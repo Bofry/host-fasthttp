@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -15,6 +16,7 @@ import (
 	"github.com/Bofry/config"
 	fasthttp "github.com/Bofry/host-fasthttp"
 	"github.com/Bofry/host-fasthttp/response"
+	"github.com/Bofry/trace"
 )
 
 type RequestManager struct {
@@ -42,6 +44,15 @@ func TestApp_Sanity(t *testing.T) {
 
 	var errorCount = 0
 
+	tp, err := trace.JaegerProvider("http://localhost:14268/api/traces",
+		trace.ServiceName("trace-demo"),
+		trace.Environment("go-test"),
+		trace.Pid(),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	app := App{}
 	starter := fasthttp.Startup(&app).
 		Middlewares(
@@ -56,6 +67,7 @@ func TestApp_Sanity(t *testing.T) {
 				fmt.Fprintf(&errorBuffer, "err: %+v", err)
 			}),
 			fasthttp.UseLogging(&LoggingService{}),
+			fasthttp.UseTracing(tp),
 			fasthttp.UseRewriter(func(ctx *fasthttp.RequestCtx, path *fasthttp.RoutePath) *fasthttp.RoutePath {
 				if strings.HasPrefix(path.Path, "/Echo/") {
 					ctx.Request.URI().QueryArgs().Add("input", path.Path[6:])
@@ -73,7 +85,12 @@ func TestApp_Sanity(t *testing.T) {
 				LoadYamlFile("config.yaml").
 				LoadCommandArguments()
 		}).
-		Configure(func(config interface{}) {})
+		OnInit(func(appContext interface{}) {
+
+		}).
+		OnInitComplete(func(appContext interface{}) {
+
+		})
 
 	runCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()

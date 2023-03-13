@@ -11,6 +11,7 @@ type ErrorHandlerMiddleware struct {
 	Handler ErrorHandler
 }
 
+// Init implements internal.Middleware
 func (m *ErrorHandlerMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())

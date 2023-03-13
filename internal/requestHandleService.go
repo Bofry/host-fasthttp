@@ -1,5 +1,9 @@
 package internal
 
+import (
+	"context"
+)
+
 type RequestHandleService struct {
 	handlers []RequestHandleModule
 }
@@ -9,7 +13,7 @@ func (s *RequestHandleService) Register(successor RequestHandleModule) {
 	if size > 0 {
 		last := s.handlers[size-1]
 
-		// ignore all new successor if the last RequestRouteResolveModule cannot accept successor
+		// ignore all new successor if the last RequestHandleModule cannot accept successor
 		if !last.CanSetSuccessor() {
 			return
 		}
@@ -30,4 +34,23 @@ func (s *RequestHandleService) first() RequestHandleModule {
 		return s.handlers[0]
 	}
 	return nil
+}
+
+func (s *RequestHandleService) stop(ctx context.Context) <-chan error {
+	ch := make(chan error)
+
+	go func() {
+		defer close(ch)
+		for _, h := range s.handlers {
+			err := h.OnStop(ctx)
+			if err != nil {
+				ch <- &StopError{
+					v:   h,
+					err: err,
+				}
+			}
+		}
+	}()
+
+	return ch
 }

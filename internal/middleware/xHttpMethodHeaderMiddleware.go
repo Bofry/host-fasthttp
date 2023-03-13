@@ -11,6 +11,7 @@ type XHttpMethodHeaderMiddleware struct {
 	Headers []string
 }
 
+// Init implements internal.Middleware
 func (m *XHttpMethodHeaderMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())

@@ -12,6 +12,7 @@ type RequestManagerMiddleware struct {
 	RequestManager interface{}
 }
 
+// Init implements internal.Middleware
 func (m *RequestManagerMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())

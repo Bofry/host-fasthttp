@@ -11,6 +11,7 @@ type LoggingMiddleware struct {
 	LoggingService LoggingService
 }
 
+// Init implements internal.Middleware
 func (m *LoggingMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())

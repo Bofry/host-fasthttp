@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"runtime/debug"
 
 	. "github.com/Bofry/host-fasthttp/internal"
@@ -14,14 +15,17 @@ type LoggingHandleModule struct {
 	loggingService LoggingService
 }
 
+// CanSetSuccessor implements RequestHandleModule
 func (h *LoggingHandleModule) CanSetSuccessor() bool {
 	return true
 }
 
+// SetSuccessor implements RequestHandleModule
 func (h *LoggingHandleModule) SetSuccessor(successor RequestHandleModule) {
 	h.successor = successor
 }
 
+// ProcessRequest implements RequestHandleModule
 func (h *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverService) {
 	if h.successor != nil {
 		eventLog := h.loggingService.CreateEventLog()
@@ -55,4 +59,15 @@ func (h *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverSe
 				h.successor.ProcessRequest(ctx, recover)
 			})
 	}
+}
+
+// OnInitComplete implements RequestHandleModule
+func (*LoggingHandleModule) OnInitComplete() {
+	// ignored
+}
+
+// OnStop implements RequestHandleModule
+func (*LoggingHandleModule) OnStop(ctx context.Context) error {
+	// do nothing
+	return nil
 }

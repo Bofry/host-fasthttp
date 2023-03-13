@@ -1,6 +1,11 @@
 package internal
 
-type FasthttpRequestWorker struct {
+import (
+	"context"
+	"fmt"
+)
+
+type RequestWorker struct {
 	requestHandleService *RequestHandleService
 	routeResolveService  *RouteResolveService
 	router               Router
@@ -10,19 +15,19 @@ type FasthttpRequestWorker struct {
 	rewriteHandler          RewriteHandler
 }
 
-func NewFasthttpRequestWorker() *FasthttpRequestWorker {
-	return &FasthttpRequestWorker{
+func NewRequestWorker() *RequestWorker {
+	return &RequestWorker{
 		requestHandleService: new(RequestHandleService),
 		routeResolveService:  new(RouteResolveService),
 		router:               make(Router),
 	}
 }
 
-func (w *FasthttpRequestWorker) ProcessRequest(ctx *RequestCtx) {
+func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
 	w.requestHandleService.ProcessRequest(ctx, new(RecoverService))
 }
 
-func (w *FasthttpRequestWorker) internalProcessRequest(ctx *RequestCtx, recover *RecoverService) {
+func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, recover *RecoverService) {
 	var (
 		method = w.routeResolveService.ResolveHttpMethod(ctx)
 		path   = w.routeResolveService.ResolveHttpPath(ctx)
@@ -54,15 +59,15 @@ func (w *FasthttpRequestWorker) internalProcessRequest(ctx *RequestCtx, recover 
 		})
 }
 
-func (w *FasthttpRequestWorker) init() {
+func (w *RequestWorker) init() {
 	// register the default RequestHandleModule
-	requestHandleModule := NewRequestHandleModuleImpl(w)
+	requestHandleModule := NewRequestWorkerHandleModule(w)
 	w.requestHandleService.Register(requestHandleModule)
 	// register the default RouteResolver
 	w.routeResolveService.Register(RouteResolveModuleInstance)
 }
 
-func (w *FasthttpRequestWorker) rewriteRequest(ctx *RequestCtx, path *RoutePath) *RoutePath {
+func (w *RequestWorker) rewriteRequest(ctx *RequestCtx, path *RoutePath) *RoutePath {
 	handler := w.rewriteHandler
 	if handler != nil {
 		return handler(ctx, path)
@@ -70,17 +75,24 @@ func (w *FasthttpRequestWorker) rewriteRequest(ctx *RequestCtx, path *RoutePath)
 	return path
 }
 
-func (h *FasthttpRequestWorker) processError(ctx *RequestCtx, err interface{}) {
+func (h *RequestWorker) processError(ctx *RequestCtx, err interface{}) {
 	if h.errorHandler != nil {
 		h.errorHandler(ctx, err)
 	}
 }
 
-func (w *FasthttpRequestWorker) processUnhandledRequest(ctx *RequestCtx) {
+func (w *RequestWorker) processUnhandledRequest(ctx *RequestCtx) {
 	handler := w.unhandledRequestHandler
 	if handler != nil {
 		handler(ctx)
 	} else {
 		ctx.SetStatusCode(StatusNotFound)
+	}
+}
+
+func (w *RequestWorker) deinit(ctx context.Context) {
+	// TODO logging error
+	for err := range w.requestHandleService.stop(ctx) {
+		fmt.Printf("%+v\n", err)
 	}
 }

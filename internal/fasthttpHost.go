@@ -17,7 +17,7 @@ type FasthttpHost struct {
 	EnableCompress bool
 	Version        string
 
-	requestWorker *FasthttpRequestWorker
+	requestWorker *RequestWorker
 
 	wg          sync.WaitGroup
 	mutex       sync.Mutex
@@ -75,6 +75,8 @@ func (h *FasthttpHost) Stop(ctx context.Context) error {
 		h.running = false
 		h.disposed = true
 		h.mutex.Unlock()
+
+		h.requestWorker.deinit(ctx)
 	}()
 
 	err := server.Shutdown()
@@ -86,7 +88,7 @@ func (h *FasthttpHost) preInit() {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 
-	h.requestWorker = NewFasthttpRequestWorker()
+	h.requestWorker = NewRequestWorker()
 }
 
 func (h *FasthttpHost) init() {
@@ -145,4 +147,8 @@ func (h *FasthttpHost) configListenAddress() {
 		port = DEFAULT_HTTP_PORT
 	}
 	h.ListenAddress = net.JoinHostPort(host, port)
+}
+
+func (h *FasthttpHost) onInitComplete() {
+
 }
