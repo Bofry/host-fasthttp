@@ -2,7 +2,6 @@ package internal
 
 import (
 	"context"
-	"fmt"
 )
 
 type RequestWorker struct {
@@ -17,8 +16,8 @@ type RequestWorker struct {
 
 func NewRequestWorker() *RequestWorker {
 	return &RequestWorker{
-		requestHandleService: new(RequestHandleService),
-		routeResolveService:  new(RouteResolveService),
+		requestHandleService: NewRequestHandleService(),
+		routeResolveService:  NewRouteResolveService(),
 		router:               make(Router),
 	}
 }
@@ -90,9 +89,17 @@ func (w *RequestWorker) processUnhandledRequest(ctx *RequestCtx) {
 	}
 }
 
-func (w *RequestWorker) deinit(ctx context.Context) {
-	// TODO logging error
-	for err := range w.requestHandleService.stop(ctx) {
-		fmt.Printf("%+v\n", err)
+func (w *RequestWorker) start(ctx context.Context) {
+	err := w.requestHandleService.triggerStart(ctx)
+	if err != nil {
+		FasthttpHostLogger.Fatalf("%+v", err)
+	}
+}
+
+func (w *RequestWorker) stop(ctx context.Context) {
+	for err := range w.requestHandleService.triggerStop(ctx) {
+		if err != nil {
+			FasthttpHostLogger.Printf("%+v", err)
+		}
 	}
 }

@@ -2,40 +2,46 @@ package internal
 
 import "context"
 
-var _ RequestHandleModule = new(RequestWorkerHandleModule)
+var _ RequestHandleModule = new(StdRequestHandleModule)
 
-type RequestWorkerHandleModule struct {
+type StdRequestHandleModule struct {
 	worker *RequestWorker
 }
 
-func NewRequestWorkerHandleModule(worker *RequestWorker) *RequestWorkerHandleModule {
-	return &RequestWorkerHandleModule{
+func NewRequestWorkerHandleModule(worker *RequestWorker) *StdRequestHandleModule {
+	return &StdRequestHandleModule{
 		worker: worker,
 	}
 }
 
 // CanSetSuccessor implements RequestHandleModule
-func (r *RequestWorkerHandleModule) CanSetSuccessor() bool {
+func (r *StdRequestHandleModule) CanSetSuccessor() bool {
 	return false
 }
 
 // SetSuccessor implements RequestHandleModule
-func (r *RequestWorkerHandleModule) SetSuccessor(successor RequestHandleModule) {
+func (r *StdRequestHandleModule) SetSuccessor(successor RequestHandleModule) {
 	panic("unsupported operation")
 }
 
 // ProcessRequest implements RequestHandleModule
-func (r *RequestWorkerHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverService) {
+func (r *StdRequestHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverService) {
 	r.worker.internalProcessRequest(ctx, recover)
 }
 
 // OnInitComplete implements RequestHandleModule
-func (*RequestWorkerHandleModule) OnInitComplete() {
+func (*StdRequestHandleModule) OnInitComplete() {
 	// ignored
 }
 
+// OnStart implements RequestHandleModule
+func (*StdRequestHandleModule) OnStart(ctx context.Context) error {
+	// do nothing
+	return nil
+}
+
 // OnStop implements RequestHandleModule
-func (*RequestWorkerHandleModule) OnStop(ctx context.Context) error {
+func (*StdRequestHandleModule) OnStop(ctx context.Context) error {
 	// do nothing
 	return nil
 }

@@ -66,6 +66,12 @@ func (*LoggingHandleModule) OnInitComplete() {
 	// ignored
 }
 
+// OnStart implements RequestHandleModule
+func (*LoggingHandleModule) OnStart(ctx context.Context) error {
+	// do nothing
+	return nil
+}
+
 // OnStop implements RequestHandleModule
 func (*LoggingHandleModule) OnStop(ctx context.Context) error {
 	// do nothing

@@ -5,22 +5,26 @@ import (
 )
 
 type RequestHandleService struct {
-	handlers []RequestHandleModule
+	modules []RequestHandleModule
 }
 
-func (s *RequestHandleService) Register(successor RequestHandleModule) {
-	size := len(s.handlers)
+func NewRequestHandleService() *RequestHandleService {
+	return &RequestHandleService{}
+}
+
+func (s *RequestHandleService) Register(module RequestHandleModule) {
+	size := len(s.modules)
 	if size > 0 {
-		last := s.handlers[size-1]
+		last := s.modules[size-1]
 
 		// ignore all new successor if the last RequestHandleModule cannot accept successor
 		if !last.CanSetSuccessor() {
 			return
 		}
 
-		last.SetSuccessor(successor)
+		last.SetSuccessor(module)
 	}
-	s.handlers = append(s.handlers, successor)
+	s.modules = append(s.modules, module)
 }
 
 func (s *RequestHandleService) ProcessRequest(ctx *RequestCtx, recover *RecoverService) {
@@ -30,22 +34,35 @@ func (s *RequestHandleService) ProcessRequest(ctx *RequestCtx, recover *RecoverS
 }
 
 func (s *RequestHandleService) first() RequestHandleModule {
-	if len(s.handlers) > 0 {
-		return s.handlers[0]
+	if len(s.modules) > 0 {
+		return s.modules[0]
 	}
 	return nil
 }
 
-func (s *RequestHandleService) stop(ctx context.Context) <-chan error {
+func (s *RequestHandleService) triggerStart(ctx context.Context) error {
+	var err error
+
+	for _, m := range s.modules {
+		if err = m.OnStart(ctx); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *RequestHandleService) triggerStop(ctx context.Context) <-chan error {
 	ch := make(chan error)
 
 	go func() {
 		defer close(ch)
-		for _, h := range s.handlers {
-			err := h.OnStop(ctx)
+		for _, m := range s.modules {
+			FasthttpHostLogger.Printf("stopping %T", m)
+
+			err := m.OnStop(ctx)
 			if err != nil {
 				ch <- &StopError{
-					v:   h,
+					v:   m,
 					err: err,
 				}
 			}

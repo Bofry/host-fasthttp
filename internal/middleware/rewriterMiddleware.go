@@ -15,8 +15,8 @@ type RewriterMiddleware struct {
 func (m *RewriterMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())
-		preparer     = NewFasthttpHostPreparer(fasthttphost)
+		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 
-	preparer.RegisterRewriteHandler(m.Handler)
+	registrar.SetRewriteHandler(m.Handler)
 }

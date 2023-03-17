@@ -17,7 +17,10 @@ type FasthttpHost struct {
 	EnableCompress bool
 	Version        string
 
-	requestWorker *RequestWorker
+	requestWorker  *RequestWorker
+	requestManager interface{}
+
+	requestResourceProcessService *RequestResourceProcessService
 
 	wg          sync.WaitGroup
 	mutex       sync.Mutex
@@ -28,10 +31,10 @@ type FasthttpHost struct {
 
 func (h *FasthttpHost) Start(ctx context.Context) {
 	if h.disposed {
-		logger.Panic("the FasthttpHost has been disposed")
+		FasthttpHostLogger.Panic("the FasthttpHost has been disposed")
 	}
 	if !h.initialized {
-		logger.Panic("the FasthttpHost havn't be initialized yet")
+		FasthttpHostLogger.Panic("the FasthttpHost havn't be initialized yet")
 	}
 	if h.running {
 		return
@@ -50,10 +53,12 @@ func (h *FasthttpHost) Start(ctx context.Context) {
 
 	s := h.Server
 
+	h.requestWorker.start(ctx)
+
 	go func() {
-		logger.Printf("%% Notice: %s listening on address %s\n", h.Server.Name, h.ListenAddress)
+		FasthttpHostLogger.Printf("%% Notice: %s listening on address %s\n", h.Server.Name, h.ListenAddress)
 		if err = s.ListenAndServe(h.ListenAddress); err != nil {
-			logger.Fatalf("%% Error: error in ListenAndServe: %v\n", err)
+			FasthttpHostLogger.Fatalf("%% Error: error in ListenAndServe: %v\n", err)
 		}
 	}()
 }
@@ -76,7 +81,7 @@ func (h *FasthttpHost) Stop(ctx context.Context) error {
 		h.disposed = true
 		h.mutex.Unlock()
 
-		h.requestWorker.deinit(ctx)
+		h.requestWorker.stop(ctx)
 	}()
 
 	err := server.Shutdown()
@@ -89,6 +94,7 @@ func (h *FasthttpHost) preInit() {
 	defer h.mutex.Unlock()
 
 	h.requestWorker = NewRequestWorker()
+	h.requestResourceProcessService = NewRequestHandlerReprocessService()
 }
 
 func (h *FasthttpHost) init() {
@@ -107,9 +113,16 @@ func (h *FasthttpHost) init() {
 	}
 
 	h.requestWorker.init()
+	h.processRequestResource()
 	h.configRequestHandler()
 	h.configCompress()
 	h.configListenAddress()
+}
+
+func (h *FasthttpHost) processRequestResource() {
+	if h.requestManager != nil {
+		h.requestResourceProcessService.Process(h.requestManager)
+	}
 }
 
 func (h *FasthttpHost) configRequestHandler() {

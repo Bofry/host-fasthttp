@@ -17,11 +17,12 @@ type TracingMiddleware struct {
 func (m *TracingMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())
-		preparer     = NewFasthttpHostPreparer(fasthttphost)
+		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 
 	tracingHandleModule := &TracingHandleModule{
 		tp: m.TracerProvider,
 	}
-	preparer.RegisterRequestHandleModule(tracingHandleModule)
+	registrar.RegisterRequestHandleModule(tracingHandleModule)
+	registrar.RegisterRequestHandlerReprocessModule(tracingHandleModule)
 }

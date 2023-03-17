@@ -12,8 +12,8 @@ type UnhandledRequestHandlerMiddleware struct {
 func (m *UnhandledRequestHandlerMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())
-		preparer     = NewFasthttpHostPreparer(fasthttphost)
+		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 
-	preparer.RegisterUnhandledRequestHandler(m.Handler)
+	registrar.SetUnhandledRequestHandler(m.Handler)
 }

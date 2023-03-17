@@ -15,8 +15,8 @@ type ErrorHandlerMiddleware struct {
 func (m *ErrorHandlerMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())
-		preparer     = NewFasthttpHostPreparer(fasthttphost)
+		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 
-	preparer.RegisterErrorHandler(m.Handler)
+	registrar.SetErrorHandler(m.Handler)
 }

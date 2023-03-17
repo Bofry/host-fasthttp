@@ -15,7 +15,7 @@ import (
 var _ structproto.StructBinder = new(RequestManagerBinder)
 
 type RequestManagerBinder struct {
-	router     internal.Router
+	registrar  *internal.FasthttpHostRegistrar
 	appContext *host.AppContext
 }
 
@@ -73,7 +73,7 @@ func (b *RequestManagerBinder) registerRoute(url string, rvRequestHandler reflec
 			handler := asRequestHandler(rvMethod)
 			if handler != nil {
 				// TODO: validate path make comply RFC3986
-				b.router.Add(strings.ToUpper(method.Name), url, handler)
+				b.registrar.AddRoute(strings.ToUpper(method.Name), url, handler)
 			}
 		}
 	}

@@ -15,11 +15,11 @@ type LoggingMiddleware struct {
 func (m *LoggingMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())
-		preparer     = NewFasthttpHostPreparer(fasthttphost)
+		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 
 	loggingHandleModule := &LoggingHandleModule{
 		loggingService: m.LoggingService,
 	}
-	preparer.RegisterRequestHandleModule(loggingHandleModule)
+	registrar.RegisterRequestHandleModule(loggingHandleModule)
 }

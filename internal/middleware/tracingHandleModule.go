@@ -3,16 +3,38 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	. "github.com/Bofry/host-fasthttp/internal"
 	"github.com/Bofry/trace"
 )
 
-var _ RequestHandleModule = new(TracingHandleModule)
+const (
+	tracerFieldName string = "Tracer"
+)
+
+var (
+	typeOfTracer reflect.Type = reflect.TypeOf(new(trace.SeverityTracer))
+
+	_ RequestHandleModule          = new(TracingHandleModule)
+	_ RequestResourceProcessModule = new(TracingHandleModule)
+)
 
 type TracingHandleModule struct {
-	tp        *trace.SeverityTracerProvider
-	successor RequestHandleModule
+	tp     *trace.SeverityTracerProvider
+	module RequestHandleModule
+}
+
+// ProcessRequestResource implements RequestResourceProcessModule
+func (m *TracingHandleModule) ProcessRequestResource(rv reflect.Value) {
+	rv = reflect.Indirect(rv)
+	tracerValue := rv.FieldByName(tracerFieldName)
+
+	if tracerValue.IsValid() && tracerValue.IsNil() && tracerValue.Type().AssignableTo(typeOfTracer) {
+		name := rv.Type().Name()
+		tracer := m.tp.Tracer(name)
+		tracerValue.Set(reflect.ValueOf(tracer))
+	}
 }
 
 // CanSetSuccessor implements RequestHandleModule
@@ -22,12 +44,12 @@ func (h *TracingHandleModule) CanSetSuccessor() bool {
 
 // SetSuccessor implements RequestHandleModule
 func (h *TracingHandleModule) SetSuccessor(successor RequestHandleModule) {
-	h.successor = successor
+	h.module = successor
 }
 
 // ProcessRequest implements RequestHandleModule
 func (h *TracingHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverService) {
-	if h.successor != nil {
+	if h.module != nil {
 		fmt.Printf("Tracing Request: %s %s\n", string(ctx.Request.Header.Method()), string(ctx.Request.URI().Path()))
 
 		recover.
@@ -44,7 +66,7 @@ func (h *TracingHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverSe
 				}
 			}).
 			Do(func() {
-				h.successor.ProcessRequest(ctx, recover)
+				h.module.ProcessRequest(ctx, recover)
 			})
 	}
 }
@@ -52,6 +74,12 @@ func (h *TracingHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverSe
 // OnInitComplete implements RequestHandleModule
 func (h *TracingHandleModule) OnInitComplete() {
 	// ignored
+}
+
+// OnStart implements RequestHandleModule
+func (h *TracingHandleModule) OnStart(ctx context.Context) error {
+	// do nothing
+	return nil
 }
 
 // OnStop implements RequestHandleModule

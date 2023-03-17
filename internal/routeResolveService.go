@@ -6,6 +6,10 @@ type RouteResolveService struct {
 	resolvers []RouteResolveModule
 }
 
+func NewRouteResolveService() *RouteResolveService {
+	return &RouteResolveService{}
+}
+
 func (s *RouteResolveService) Register(successor RouteResolveModule) {
 	size := len(s.resolvers)
 	if size > 0 {

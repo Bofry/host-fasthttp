@@ -15,11 +15,11 @@ type XHttpMethodHeaderMiddleware struct {
 func (m *XHttpMethodHeaderMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())
-		preparer     = NewFasthttpHostPreparer(fasthttphost)
+		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 
 	routeResolveModule := &XHttpMethodHeaderRouteResolveModule{
 		headers: m.Headers,
 	}
-	preparer.RegisterRouteResolveModule(routeResolveModule)
+	registrar.RegisterRouteResolveModule(routeResolveModule)
 }

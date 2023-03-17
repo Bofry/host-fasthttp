@@ -19,11 +19,11 @@ const (
 )
 
 var (
-	FasthttpHostServiceInstance = new(FasthttpHostService)
-
 	typeOfHost = reflect.TypeOf(FasthttpHost{})
 
-	logger *log.Logger = log.New(os.Stdout, LOGGER_PREFIX, log.LstdFlags|log.Lmsgprefix)
+	FasthttpHostServiceInstance = new(FasthttpHostService)
+
+	FasthttpHostLogger *log.Logger = log.New(os.Stdout, LOGGER_PREFIX, log.LstdFlags|log.Lmsgprefix)
 )
 
 // import
@@ -52,7 +52,12 @@ type (
 		SetSuccessor(successor RequestHandleModule)
 		ProcessRequest(ctx *RequestCtx, recover *RecoverService)
 		OnInitComplete()
+		OnStart(ctx context.Context) error
 		OnStop(ctx context.Context) error
+	}
+
+	RequestResourceProcessModule interface {
+		ProcessRequestResource(rv reflect.Value)
 	}
 )
 

@@ -26,6 +26,7 @@ type RequestManager struct {
 	*AccidentRequest `url:"/Accident"`
 	*JsonRequest     `url:"/Json"`
 	*TextRequest     `url:"/Text"`
+	*TracingRequest  `url:"/Tracing"`
 }
 
 func TestApp_Sanity(t *testing.T) {
@@ -45,7 +46,7 @@ func TestApp_Sanity(t *testing.T) {
 	var errorCount = 0
 
 	tp, err := trace.JaegerProvider("http://localhost:14268/api/traces",
-		trace.ServiceName("trace-demo"),
+		trace.ServiceName("fasthttp-trace-demo"),
 		trace.Environment("go-test"),
 		trace.Pid(),
 	)
@@ -277,6 +278,14 @@ func TestApp_Sanity(t *testing.T) {
 		if string(body) != "UNKNOWN_ERROR" {
 			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "UNKNOWN_ERROR", string(body))
 		}
+	}
+	{
+		req, err := http.NewRequest("PING", "http://127.0.0.1:10094/Tracing", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		// just test tracing, without check response
+		client.Do(req)
 	}
 
 	select {

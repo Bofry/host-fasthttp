@@ -16,11 +16,15 @@ type RequestManagerMiddleware struct {
 func (m *RequestManagerMiddleware) Init(appCtx *host.AppContext) {
 	var (
 		fasthttphost = asFasthttpHost(appCtx.Host())
-		preparer     = NewFasthttpHostPreparer(fasthttphost)
+		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 
+	// register RequestManager offer FasthttpHost processing later.
+	registrar.SetRequestManager(m.RequestManager)
+
+	// binding RequestManager
 	binder := &RequestManagerBinder{
-		router:     preparer.Router(),
+		registrar:  registrar,
 		appContext: appCtx,
 	}
 
