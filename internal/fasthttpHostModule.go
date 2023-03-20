@@ -28,7 +28,6 @@ func (s *FasthttpHostModule) Init(h host.Host, app *host.AppModule) {
 // InitComplete implements host.HostService
 func (s *FasthttpHostModule) InitComplete(h host.Host, app *host.AppModule) {
 	if v, ok := h.(*FasthttpHost); ok {
-		// TODO: 註冊 tracer 到 request handler
 		v.init()
 	}
 }

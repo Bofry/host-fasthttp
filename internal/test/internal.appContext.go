@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	_ host.App                   = new(App)
-	_ host.AppStaterConfigurator = new(App)
+	_ host.App                    = new(App)
+	_ host.AppStaterConfigurator  = new(App)
+	_ host.AppTracingConfigurator = new(App)
 )
 
 type (
@@ -56,8 +57,6 @@ func (app *App) Init() {
 
 	app.Component = &MockComponent{}
 	app.ComponentRunner = &MockComponentRunner{prefix: "MockComponentRunner"}
-
-	app.ConfigureTracerProvider()
 }
 
 func (app *App) OnInit() {
@@ -85,7 +84,6 @@ func (app *App) ConfigureTracerProvider() {
 		log.Fatal(err)
 	}
 
-	app.Host.TracerProvider = tp
 	trace.SetTracerProvider(tp)
 }
 

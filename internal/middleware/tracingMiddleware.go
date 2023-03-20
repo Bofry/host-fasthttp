@@ -25,7 +25,11 @@ func (m *TracingMiddleware) Init(app *host.AppModule) {
 	if m.Enabled {
 		tp = fasthttphost.TracerProvider
 	} else {
-		tp, _ = trace.NoopProvider()
+		var err error
+		tp, err = trace.NoopProvider()
+		if err != nil {
+			FasthttpHostLogger.Fatalf("%v", err)
+		}
 	}
 
 	if tp == nil {
