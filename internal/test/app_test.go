@@ -57,7 +57,7 @@ func TestApp_Sanity(t *testing.T) {
 				fmt.Fprintf(&errorBuffer, "err: %+v", err)
 			}),
 			fasthttp.UseLogging(&LoggingService{}),
-			fasthttp.UseTracing(nil),
+			fasthttp.UseTracing(true),
 			fasthttp.UseRewriter(func(ctx *fasthttp.RequestCtx, path *fasthttp.RoutePath) *fasthttp.RoutePath {
 				if strings.HasPrefix(path.Path, "/Echo/") {
 					ctx.Request.URI().QueryArgs().Add("input", path.Path[6:])

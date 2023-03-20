@@ -10,7 +10,7 @@ import (
 var _ host.Middleware = new(TracingMiddleware)
 
 type TracingMiddleware struct {
-	TracerProvider *trace.SeverityTracerProvider
+	Enabled bool
 }
 
 // Init implements internal.Middleware
@@ -19,12 +19,15 @@ func (m *TracingMiddleware) Init(app *host.AppModule) {
 		fasthttphost = asFasthttpHost(app.Host())
 		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 
-		tp = m.TracerProvider
+		tp *trace.SeverityTracerProvider
 	)
 
-	if tp == nil {
+	if m.Enabled {
 		tp = fasthttphost.TracerProvider
+	} else {
+		tp, _ = trace.NoopProvider()
 	}
+
 	if tp == nil {
 		FasthttpHostLogger.Fatal("cannot found valid TracerProvider")
 	}

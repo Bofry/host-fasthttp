@@ -21,7 +21,7 @@ const (
 var (
 	typeOfHost = reflect.TypeOf(FasthttpHost{})
 
-	FasthttpHostServiceInstance = new(FasthttpHostService)
+	FasthttpHostServiceInstance = new(FasthttpHostModule)
 
 	FasthttpHostLogger *log.Logger = log.New(os.Stdout, LOGGER_PREFIX, log.LstdFlags|log.Lmsgprefix)
 )

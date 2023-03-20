@@ -3,7 +3,6 @@ package fasthttp
 import (
 	"github.com/Bofry/host"
 	"github.com/Bofry/host-fasthttp/internal/middleware"
-	"github.com/Bofry/trace"
 )
 
 func UseErrorHandler(handler ErrorHandler) host.Middleware {
@@ -60,13 +59,9 @@ func UseUnhandledRequestHandler(handler RequestHandler) host.Middleware {
 	}
 }
 
-func UseTracing(tp *trace.SeverityTracerProvider) host.Middleware {
-	// if tp == nil {
-	// 	panic("argument 'tp' cannot be nil")
-	// }
-
+func UseTracing(enabled bool) host.Middleware {
 	return &middleware.TracingMiddleware{
-		TracerProvider: tp,
+		Enabled: enabled,
 	}
 }
 
