@@ -9,9 +9,9 @@ type UnhandledRequestHandlerMiddleware struct {
 	Handler RequestHandler
 }
 
-func (m *UnhandledRequestHandlerMiddleware) Init(appCtx *host.AppContext) {
+func (m *UnhandledRequestHandlerMiddleware) Init(app *host.AppModule) {
 	var (
-		fasthttphost = asFasthttpHost(appCtx.Host())
+		fasthttphost = asFasthttpHost(app.Host())
 		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 

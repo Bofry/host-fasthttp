@@ -61,9 +61,9 @@ func UseUnhandledRequestHandler(handler RequestHandler) host.Middleware {
 }
 
 func UseTracing(tp *trace.SeverityTracerProvider) host.Middleware {
-	if tp == nil {
-		panic("argument 'tp' cannot be nil")
-	}
+	// if tp == nil {
+	// 	panic("argument 'tp' cannot be nil")
+	// }
 
 	return &middleware.TracingMiddleware{
 		TracerProvider: tp,

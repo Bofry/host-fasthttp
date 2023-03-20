@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/Bofry/host"
+	"github.com/Bofry/trace"
 	"github.com/valyala/fasthttp"
 )
 
@@ -16,6 +17,8 @@ type FasthttpHost struct {
 	ListenAddress  string
 	EnableCompress bool
 	Version        string
+
+	TracerProvider *trace.SeverityTracerProvider
 
 	requestWorker  *RequestWorker
 	requestManager interface{}

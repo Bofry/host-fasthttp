@@ -12,9 +12,9 @@ type RewriterMiddleware struct {
 }
 
 // Init implements internal.Middleware
-func (m *RewriterMiddleware) Init(appCtx *host.AppContext) {
+func (m *RewriterMiddleware) Init(app *host.AppModule) {
 	var (
-		fasthttphost = asFasthttpHost(appCtx.Host())
+		fasthttphost = asFasthttpHost(app.Host())
 		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 

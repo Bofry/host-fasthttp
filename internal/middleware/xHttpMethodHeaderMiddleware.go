@@ -12,9 +12,9 @@ type XHttpMethodHeaderMiddleware struct {
 }
 
 // Init implements internal.Middleware
-func (m *XHttpMethodHeaderMiddleware) Init(appCtx *host.AppContext) {
+func (m *XHttpMethodHeaderMiddleware) Init(app *host.AppModule) {
 	var (
-		fasthttphost = asFasthttpHost(appCtx.Host())
+		fasthttphost = asFasthttpHost(app.Host())
 		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 

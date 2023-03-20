@@ -15,8 +15,8 @@ import (
 var _ structproto.StructBinder = new(RequestManagerBinder)
 
 type RequestManagerBinder struct {
-	registrar  *internal.FasthttpHostRegistrar
-	appContext *host.AppContext
+	registrar *internal.FasthttpHostRegistrar
+	app       *host.AppModule
 }
 
 func (b *RequestManagerBinder) Init(context *structproto.StructProtoContext) error {
@@ -33,8 +33,8 @@ func (b *RequestManagerBinder) Bind(field structproto.FieldInfo, rv reflect.Valu
 	binder := &RequestHandlerBinder{
 		requestHandlerType: rvRequestHandler.Type().Name(),
 		components: map[string]reflect.Value{
-			host.APP_CONFIG_FIELD:           b.appContext.Config(),
-			host.APP_SERVICE_PROVIDER_FIELD: b.appContext.ServiceProvider(),
+			host.APP_CONFIG_FIELD:           b.app.Config(),
+			host.APP_SERVICE_PROVIDER_FIELD: b.app.ServiceProvider(),
 		},
 	}
 	err := b.preformBindRequestHandler(rvRequestHandler, binder)

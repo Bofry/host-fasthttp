@@ -14,14 +14,23 @@ type TracingMiddleware struct {
 }
 
 // Init implements internal.Middleware
-func (m *TracingMiddleware) Init(appCtx *host.AppContext) {
+func (m *TracingMiddleware) Init(app *host.AppModule) {
 	var (
-		fasthttphost = asFasthttpHost(appCtx.Host())
+		fasthttphost = asFasthttpHost(app.Host())
 		registrar    = NewFasthttpHostRegistrar(fasthttphost)
+
+		tp = m.TracerProvider
 	)
 
+	if tp == nil {
+		tp = fasthttphost.TracerProvider
+	}
+	if tp == nil {
+		FasthttpHostLogger.Fatal("cannot found valid TracerProvider")
+	}
+
 	tracingHandleModule := &TracingHandleModule{
-		tp: m.TracerProvider,
+		tp: tp,
 	}
 	registrar.RegisterRequestHandleModule(tracingHandleModule)
 	registrar.RegisterRequestHandlerReprocessModule(tracingHandleModule)

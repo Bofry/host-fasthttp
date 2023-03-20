@@ -1,2 +1,4 @@
 redisDB: 3
 workspace: demo_test
+
+jaegerTraceUrl: http://localhost:14268/api/traces

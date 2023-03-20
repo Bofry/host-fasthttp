@@ -13,9 +13,9 @@ type RequestManagerMiddleware struct {
 }
 
 // Init implements internal.Middleware
-func (m *RequestManagerMiddleware) Init(appCtx *host.AppContext) {
+func (m *RequestManagerMiddleware) Init(app *host.AppModule) {
 	var (
-		fasthttphost = asFasthttpHost(appCtx.Host())
+		fasthttphost = asFasthttpHost(app.Host())
 		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 
@@ -24,8 +24,8 @@ func (m *RequestManagerMiddleware) Init(appCtx *host.AppContext) {
 
 	// binding RequestManager
 	binder := &RequestManagerBinder{
-		registrar:  registrar,
-		appContext: appCtx,
+		registrar: registrar,
+		app:       app,
 	}
 
 	err := m.performBindRequestManager(m.RequestManager, binder)

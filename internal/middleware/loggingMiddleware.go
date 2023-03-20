@@ -12,9 +12,9 @@ type LoggingMiddleware struct {
 }
 
 // Init implements internal.Middleware
-func (m *LoggingMiddleware) Init(appCtx *host.AppContext) {
+func (m *LoggingMiddleware) Init(app *host.AppModule) {
 	var (
-		fasthttphost = asFasthttpHost(appCtx.Host())
+		fasthttphost = asFasthttpHost(app.Host())
 		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 

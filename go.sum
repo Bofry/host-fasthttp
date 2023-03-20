@@ -4,6 +4,14 @@ github.com/Bofry/host v0.1.2-0.20230316151825-4d961b8a52bb h1:YTnMcs1pIA5SV8q0dB
 github.com/Bofry/host v0.1.2-0.20230316151825-4d961b8a52bb/go.mod h1:BvFXZwx0UXxLAzPqjtR+43bfRy6UotmAhMF3ZH+YboA=
 github.com/Bofry/host v0.1.2-0.20230317094324-d59932303fc3 h1:n0ljqtsirqr/hN8OkLz9cFdJnqO3+myYbcoZVuX6sdM=
 github.com/Bofry/host v0.1.2-0.20230317094324-d59932303fc3/go.mod h1:BvFXZwx0UXxLAzPqjtR+43bfRy6UotmAhMF3ZH+YboA=
+github.com/Bofry/host v0.1.2-0.20230318023422-3fceb1b9dbd3 h1:MFXrkQ0QcvczD97zPDHBkget/mtn2yQaQDzBAmZEtyA=
+github.com/Bofry/host v0.1.2-0.20230318023422-3fceb1b9dbd3/go.mod h1:0GrfSgBo+FkBTMksjtIC1xlQyHn1s+NtLdcTCOV43jA=
+github.com/Bofry/host v0.1.2-0.20230318150358-014e567fda99 h1:wmVYEoxQfJKSkzDkhDgR002JNo4KCgj4ITI5u6R7pkY=
+github.com/Bofry/host v0.1.2-0.20230318150358-014e567fda99/go.mod h1:0GrfSgBo+FkBTMksjtIC1xlQyHn1s+NtLdcTCOV43jA=
+github.com/Bofry/host v0.1.2-0.20230318151357-d943c8d2cfa8 h1:dpUjdhPz3iPaGpy2gJXyVfw4rTtyGNzpDPidTsRFCsI=
+github.com/Bofry/host v0.1.2-0.20230318151357-d943c8d2cfa8/go.mod h1:0GrfSgBo+FkBTMksjtIC1xlQyHn1s+NtLdcTCOV43jA=
+github.com/Bofry/host v0.1.2-0.20230318151727-846aa9511871 h1:3Op0D++Zft8riuFGU70UCYzXQocYRkiZIM+smLPjyio=
+github.com/Bofry/host v0.1.2-0.20230318151727-846aa9511871/go.mod h1:0GrfSgBo+FkBTMksjtIC1xlQyHn1s+NtLdcTCOV43jA=
 github.com/Bofry/structproto v0.2.0-alpha.20221227043020 h1:R/pdSosp1eZA+Dx8Mz316LYW4N6DbB0wRMQZr4e1duw=
 github.com/Bofry/structproto v0.2.0-alpha.20221227043020/go.mod h1:ExAR9NDYUXZOVlAJrz2oavvVxjaegV7Mb91HQcQYWLA=
 github.com/Bofry/trace v0.0.0-20230227160657-fea98925a1a3 h1:u+YP72+j/gHU1ZN/MqZZDyTUwe1fHwJM4lfxVY8lacI=
@@ -63,6 +71,7 @@ github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ8=
+github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=
 github.com/valyala/fasthttp v1.35.0 h1:wwkR8mZn2NbigFsaw2Zj5r+xkmzjbrA/lyTmiSlal/Y=

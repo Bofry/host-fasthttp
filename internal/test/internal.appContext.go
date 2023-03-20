@@ -1,11 +1,20 @@
 package test
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"runtime"
 	"strings"
 
+	"github.com/Bofry/host"
 	fasthttp "github.com/Bofry/host-fasthttp"
+	"github.com/Bofry/trace"
+)
+
+var (
+	_ host.App                   = new(App)
+	_ host.AppStaterConfigurator = new(App)
 )
 
 type (
@@ -32,6 +41,9 @@ type (
 		RedisDB       int    `env:"REDIS_DB"          yaml:"redisDB"`
 		RedisPoolSize int    `env:"REDIS_POOL_SIZE"   yaml:"redisPoolSize"`
 		Workspace     string `env:"-"                 yaml:"workspace"`
+
+		// jaeger
+		JaegerTraceUrl string `yaml:"jaegerTraceUrl"`
 	}
 
 	ServiceProvider struct {
@@ -39,11 +51,46 @@ type (
 	}
 )
 
-func (app *App) Init(conf *Config) {
+func (app *App) Init() {
 	fmt.Println("App.Init()")
 
 	app.Component = &MockComponent{}
 	app.ComponentRunner = &MockComponentRunner{prefix: "MockComponentRunner"}
+
+	app.ConfigureTracerProvider()
+}
+
+func (app *App) OnInit() {
+}
+
+func (app *App) OnInitComplete() {
+}
+
+func (app *App) OnStart(ctx context.Context) {
+}
+
+func (app *App) OnStop(ctx context.Context) {
+}
+
+func (app *App) ConfigureLogger(logger *log.Logger) {
+}
+
+func (app *App) ConfigureTracerProvider() {
+	tp, err := trace.JaegerProvider(app.Config.JaegerTraceUrl,
+		trace.ServiceName("fasthttp-trace-demo"),
+		trace.Environment("go-test"),
+		trace.Pid(),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	app.Host.TracerProvider = tp
+	trace.SetTracerProvider(tp)
+}
+
+func (app *App) TracerProvider() *trace.SeverityTracerProvider {
+	return trace.GetTracerProvider()
 }
 
 func (provider *ServiceProvider) Init(conf *Config) {
