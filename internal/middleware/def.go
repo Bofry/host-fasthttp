@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"reflect"
 
 	"github.com/Bofry/host-fasthttp/internal"
@@ -17,6 +18,7 @@ var (
 type (
 	LoggingService interface {
 		CreateEventLog() EventLog
+		ConfigureLogger(l *log.Logger)
 	}
 
 	EventLog interface {

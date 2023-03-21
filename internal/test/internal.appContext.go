@@ -13,6 +13,10 @@ import (
 )
 
 var (
+	logger *log.Logger = log.New(log.Writer(), "[host-fasthttp-test] ", log.LstdFlags|log.Lmsgprefix|log.LUTC)
+)
+
+var (
 	_ host.App                    = new(App)
 	_ host.AppStaterConfigurator  = new(App)
 	_ host.AppTracingConfigurator = new(App)
@@ -71,7 +75,13 @@ func (app *App) OnStart(ctx context.Context) {
 func (app *App) OnStop(ctx context.Context) {
 }
 
-func (app *App) ConfigureLogger(logger *log.Logger) {
+func (app *App) ConfigureLogger(l *log.Logger) {
+	l.SetFlags(logger.Flags())
+	l.SetOutput(log.Writer())
+}
+
+func (app *App) Logger() *log.Logger {
+	return logger
 }
 
 func (app *App) ConfigureTracerProvider() {

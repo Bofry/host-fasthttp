@@ -9,20 +9,22 @@ import (
 
 var _ fasthttp.EventLog = new(EventLog)
 
-type EventLog struct{}
+type EventLog struct {
+	logger *log.Logger
+}
 
 func (l *EventLog) WriteError(ctx *fasthttp.RequestCtx, err interface{}, stackTrace []byte) {
-	log.Printf("EventLog.WriteError(): %v\n", err)
+	l.logger.Printf("EventLog.WriteError(): %v\n", err)
 }
 
 func (l *EventLog) WriteRequest(ctx *fasthttp.RequestCtx) {
-	log.Printf("EventLog.WriteRequest(): %s %s\n", string(ctx.Method()), string(ctx.Path()))
+	l.logger.Printf("EventLog.WriteRequest(): %s %s\n", string(ctx.Method()), string(ctx.Path()))
 }
 
 func (l *EventLog) WriteResponse(ctx *fasthttp.RequestCtx, flag response.ResponseFlag) {
-	log.Printf("EventLog.WriteResponse(): %d [%v]\n", ctx.Response.StatusCode(), flag)
+	l.logger.Printf("EventLog.WriteResponse(): %d [%v]\n", ctx.Response.StatusCode(), flag)
 }
 
 func (l *EventLog) Flush() {
-	log.Println("EventLog.Flush()")
+	l.logger.Println("EventLog.Flush()")
 }

@@ -8,9 +8,17 @@ import (
 
 var _ fasthttp.LoggingService = new(LoggingService)
 
-type LoggingService struct{}
+type LoggingService struct {
+	logger *log.Logger
+}
 
 func (s *LoggingService) CreateEventLog() fasthttp.EventLog {
-	log.Println("CreateEventLog()")
-	return &EventLog{}
+	s.logger.Println("CreateEventLog()")
+	return &EventLog{
+		logger: s.logger,
+	}
+}
+
+func (s *LoggingService) ConfigureLogger(l *log.Logger) {
+	s.logger = l
 }

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"log"
 	"net"
 	"sync"
 
@@ -19,6 +20,7 @@ type FasthttpHost struct {
 	Version        string
 
 	TracerProvider *trace.SeverityTracerProvider
+	Logger         *log.Logger
 
 	requestWorker  *RequestWorker
 	requestManager interface{}

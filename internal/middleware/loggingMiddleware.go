@@ -18,6 +18,8 @@ func (m *LoggingMiddleware) Init(app *host.AppModule) {
 		registrar    = NewFasthttpHostRegistrar(fasthttphost)
 	)
 
+	m.LoggingService.ConfigureLogger(fasthttphost.Logger)
+
 	loggingHandleModule := &LoggingHandleModule{
 		loggingService: m.LoggingService,
 	}
