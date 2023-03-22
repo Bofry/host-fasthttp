@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 
+	"github.com/Bofry/host-fasthttp/response/failure"
 	"github.com/valyala/fasthttp"
 )
 
@@ -15,4 +16,8 @@ func (r *AccidentRequest) Occur(ctx *fasthttp.RequestCtx) {
 
 func (r *AccidentRequest) Fail(ctx *fasthttp.RequestCtx) {
 	panic(fmt.Errorf("FAIL"))
+}
+
+func (r *AccidentRequest) Fail2(ctx *fasthttp.RequestCtx) {
+	failure.ThrowFailureMessage(failure.UNKNOWN_ERROR, "an error occurred")
 }

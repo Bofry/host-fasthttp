@@ -3,6 +3,7 @@ package test
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -15,6 +16,7 @@ import (
 	"github.com/Bofry/config"
 	fasthttp "github.com/Bofry/host-fasthttp"
 	"github.com/Bofry/host-fasthttp/response"
+	"github.com/Bofry/host-fasthttp/response/failure"
 )
 
 type RequestManager struct {
@@ -50,8 +52,13 @@ func TestApp_Sanity(t *testing.T) {
 			fasthttp.UseXHttpMethodHeader(),
 			fasthttp.UseErrorHandler(func(ctx *fasthttp.RequestCtx, err interface{}) {
 				errorCount++
-				v, ok := err.(error)
-				if ok && v.Error() == "FAIL" {
+				if fail, ok := err.(*failure.Failure); ok {
+					content, _ := json.Marshal(fail)
+					if content != nil {
+						response.Failure(ctx, "application/json", content, fasthttp.StatusBadRequest)
+					}
+				}
+				if v, ok := err.(error); ok && v.Error() == "FAIL" {
 					response.Failure(ctx, string(ctx.Response.Header.ContentType()), []byte("FAIL"), 400)
 				}
 				fmt.Fprintf(&errorBuffer, "err: %+v", err)
@@ -203,6 +210,19 @@ func TestApp_Sanity(t *testing.T) {
 		errorBuffer.Reset()
 	}
 	{
+		req, err := http.NewRequest("FAIL2", "http://127.0.0.1:10094/Accident", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Add("If-None-Match", `W/"wyzzy"`)
+		_, _ = client.Do(req)
+		expectedErrorString := "err: UNKNOWN_ERROR - an error occurred"
+		if errorBuffer.String() != expectedErrorString {
+			t.Errorf("assert 'errorBuffer':: expected '%v', got '%v'", expectedErrorString, errorBuffer.String())
+		}
+		errorBuffer.Reset()
+	}
+	{
 		req, err := http.NewRequest("PING", "http://127.0.0.1:10094/Json", nil)
 		if err != nil {
 			t.Error(err)
@@ -278,7 +298,7 @@ func TestApp_Sanity(t *testing.T) {
 		}
 	}
 
-	var expectedErrorCount = 2
+	var expectedErrorCount = 3
 	if errorCount != expectedErrorCount {
 		t.Errorf("assert 'errorCount':: expected '%v', got '%v'", expectedErrorCount, errorCount)
 	}
