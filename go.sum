@@ -26,6 +26,14 @@ github.com/Bofry/host v0.1.2-0.20230321065236-b5df9c301395 h1:0bramwq5N65tMY082B
 github.com/Bofry/host v0.1.2-0.20230321065236-b5df9c301395/go.mod h1:9kHR7jg7vH6qWoMVmrIw+SnTWqYmwII+J4efj2KFoiQ=
 github.com/Bofry/host v0.1.2-0.20230321065950-43d670ddd936 h1:PgFNYDQUbdOPi3elQ7mR4Zwnf3+sIawzo5uykxr1KX0=
 github.com/Bofry/host v0.1.2-0.20230321065950-43d670ddd936/go.mod h1:9kHR7jg7vH6qWoMVmrIw+SnTWqYmwII+J4efj2KFoiQ=
+github.com/Bofry/host v0.1.2-0.20230324075409-d5056d9651ba h1:xqJLlLEZp56saVHH4pqXtPJGjTV37yHwW5K8wSgWJkI=
+github.com/Bofry/host v0.1.2-0.20230324075409-d5056d9651ba/go.mod h1:4SSB/8DDUX85a7lqZjoxITd3VAwmOPECmkxYzkH1l8k=
+github.com/Bofry/host v0.1.2-0.20230325065128-f3ec0e5eaeb0 h1:hI/y/WGS74ihvbF+HSvavHLhRPGlW+/7efFgOpP6DF4=
+github.com/Bofry/host v0.1.2-0.20230325065128-f3ec0e5eaeb0/go.mod h1:J1tpLSoppJLig3XnnJqzJTDx6q13TZhdGh8A7LX8+0g=
+github.com/Bofry/host v0.1.2-0.20230325162758-c73f7d6ad06f h1:P2bwuiJ6zd3yi+e70d/fx9nQmRHZu+p7BXY+n1ITk7c=
+github.com/Bofry/host v0.1.2-0.20230325162758-c73f7d6ad06f/go.mod h1:gkVfdu1BpE6sSqP+GcpBpKwgWCfWWuKC6wi7I9G2N+A=
+github.com/Bofry/host v0.1.2-0.20230325171520-0527c0c03a54 h1:HTC4OcNyBldXCFj/foATQd91ctas9hJyJJwjQy1RtoM=
+github.com/Bofry/host v0.1.2-0.20230325171520-0527c0c03a54/go.mod h1:BWx7IW8JhCLQBznRmaMN7yysHiQR4zuhSWs3JJm4S64=
 github.com/Bofry/structproto v0.2.0-alpha.20221227043020 h1:R/pdSosp1eZA+Dx8Mz316LYW4N6DbB0wRMQZr4e1duw=
 github.com/Bofry/structproto v0.2.0-alpha.20221227043020/go.mod h1:ExAR9NDYUXZOVlAJrz2oavvVxjaegV7Mb91HQcQYWLA=
 github.com/Bofry/trace v0.0.0-20230227160657-fea98925a1a3 h1:u+YP72+j/gHU1ZN/MqZZDyTUwe1fHwJM4lfxVY8lacI=
@@ -34,6 +42,12 @@ github.com/Bofry/trace v0.0.0-20230317174401-681d163cadbb h1:4Jl55A3CIiYfsmgHmlu
 github.com/Bofry/trace v0.0.0-20230317174401-681d163cadbb/go.mod h1:PZxbK9ssiNWGM0rYpT5Xm3h6vkKQLze/7kCxdbNYgFQ=
 github.com/Bofry/trace v0.0.0-20230320140750-3af1b9e7d4f7 h1:V0KL8yXExA4aaLm9jUHgbkeNlLfV0z7eQL2LAP96lgU=
 github.com/Bofry/trace v0.0.0-20230320140750-3af1b9e7d4f7/go.mod h1:PZxbK9ssiNWGM0rYpT5Xm3h6vkKQLze/7kCxdbNYgFQ=
+github.com/Bofry/trace v0.0.0-20230325064919-d16dfcd5ab47 h1:BpZaEkfu7E+12jFzfqBpa+SMErneXbn4NkB1MQZx4Oo=
+github.com/Bofry/trace v0.0.0-20230325064919-d16dfcd5ab47/go.mod h1:PZxbK9ssiNWGM0rYpT5Xm3h6vkKQLze/7kCxdbNYgFQ=
+github.com/Bofry/trace v0.0.0-20230325171344-630494792785 h1:ixBaCMJsNuJEXHIlVi+Vra8criip2Va2zcRE+bjt2dw=
+github.com/Bofry/trace v0.0.0-20230325171344-630494792785/go.mod h1:PZxbK9ssiNWGM0rYpT5Xm3h6vkKQLze/7kCxdbNYgFQ=
+github.com/Bofry/trace v0.0.0-20230325172104-2777eaa082d1 h1:S8exquiYChNK/cF+kWcylwastW48DWzbBjxtjr1toqA=
+github.com/Bofry/trace v0.0.0-20230325172104-2777eaa082d1/go.mod h1:PZxbK9ssiNWGM0rYpT5Xm3h6vkKQLze/7kCxdbNYgFQ=
 github.com/Bofry/types v0.1.0 h1:lEM+LcPWlC1ByerJlp0cZ4tCCosR9lemVDvu9kATV1Y=
 github.com/Bofry/types v0.1.0/go.mod h1:O0I2TpZ3YfKDgTnJO5zeaX9LO7vtdhGnwbz/oP4cKUw=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=

@@ -18,7 +18,7 @@ func TestRouter(t *testing.T) {
 		breadcrumb = true
 	})
 
-	router.Add("POST", "/Echo", postEchoRequestHandler)
+	router.Add("POST", "/Echo", postEchoRequestHandler, "")
 	requestHandler := router.Get("POST", "/Echo")
 
 	if requestHandler == nil {

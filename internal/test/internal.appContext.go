@@ -10,6 +10,7 @@ import (
 	"github.com/Bofry/host"
 	fasthttp "github.com/Bofry/host-fasthttp"
 	"github.com/Bofry/trace"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 var (
@@ -73,11 +74,19 @@ func (app *App) OnStart(ctx context.Context) {
 }
 
 func (app *App) OnStop(ctx context.Context) {
+	{
+		logger.Printf("stoping TracerProvider")
+		tp := trace.GetTracerProvider()
+		err := tp.Shutdown(ctx)
+		if err != nil {
+			logger.Printf("stoping TracerProvider error: %+v", err)
+		}
+	}
 }
 
 func (app *App) ConfigureLogger(l *log.Logger) {
 	l.SetFlags(logger.Flags())
-	l.SetOutput(log.Writer())
+	l.SetOutput(logger.Writer())
 }
 
 func (app *App) Logger() *log.Logger {
@@ -95,10 +104,27 @@ func (app *App) ConfigureTracerProvider() {
 	}
 
 	trace.SetTracerProvider(tp)
+	fmt.Printf("****tp: %+v\n", tp)
+
+	// tr := tp.Tracer("app")
+	// sp := tr.Open(nil, "ConfigureTracerProvider")
+	// defer sp.End()
+	// sp.Info("app~~~~")
 }
 
 func (app *App) TracerProvider() *trace.SeverityTracerProvider {
 	return trace.GetTracerProvider()
+}
+
+func (app *App) ConfigureTextMapPropagator() {
+	trace.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	))
+}
+
+func (app *App) TextMapPropagator() propagation.TextMapPropagator {
+	return trace.GetTextMapPropagator()
 }
 
 func (provider *ServiceProvider) Init(conf *Config) {

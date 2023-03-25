@@ -2,34 +2,32 @@ package internal
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/Bofry/host-fasthttp/internal/requestutil"
+	"github.com/Bofry/host-fasthttp/internal/responseutil"
+	"github.com/Bofry/trace"
 )
 
 type RequestWorker struct {
-	requestHandleService *RequestHandleService
-	routeResolveService  *RouteResolveService
-	router               Router
+	RequestHandleService *RequestHandleService
+	RequestTracerService *RequestTracerService
+	RouteResolveService  *RouteResolveService
+	Router               Router
 
-	errorHandler            ErrorHandler
-	unhandledRequestHandler RequestHandler
-	rewriteHandler          RewriteHandler
-}
-
-func NewRequestWorker() *RequestWorker {
-	return &RequestWorker{
-		requestHandleService: NewRequestHandleService(),
-		routeResolveService:  NewRouteResolveService(),
-		router:               make(Router),
-	}
+	ErrorHandler            ErrorHandler
+	UnhandledRequestHandler RequestHandler
+	RewriteHandler          RewriteHandler
 }
 
 func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
-	w.requestHandleService.ProcessRequest(ctx, new(RecoverService))
+	w.RequestHandleService.ProcessRequest(ctx, new(RecoverService))
 }
 
 func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, recover *RecoverService) {
 	var (
-		method = w.routeResolveService.ResolveHttpMethod(ctx)
-		path   = w.routeResolveService.ResolveHttpPath(ctx)
+		method = w.RouteResolveService.ResolveHttpMethod(ctx)
+		path   = w.RouteResolveService.ResolveHttpPath(ctx)
 	)
 
 	routePath := &RoutePath{
@@ -43,13 +41,57 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, recover *Recover
 				w.processError(ctx, err)
 			}
 		}).
-		Do(func() {
+		Do(func(finalizer Finalizer) {
 			routePath = w.rewriteRequest(ctx, routePath)
 			if routePath == nil {
 				panic("invalid RoutePath. The RouttPath should not be nil.")
 			}
 
-			handler := w.router.Get(routePath.Method, routePath.Path)
+			handler := w.Router.Get(routePath.Method, routePath.Path)
+
+			moduleID := w.Router.FindRequestComponentID(routePath.Method, routePath.Path)
+			tr := w.RequestTracerService.Tracer(moduleID)
+			carrier := RequestHeaderCarrier{ctx: ctx}
+			sp := tr.ExtractWithPropagator(
+				ctx,
+				w.RequestTracerService.TextMapPropagator,
+				carrier,
+				routePath.String(),
+				trace.WithNewRoot())
+
+			finalizer.Add(func(err interface{}) {
+				defer sp.End()
+
+				if err != nil {
+					if e, ok := err.(error); ok {
+						sp.Err(e)
+					} else if e, ok := err.(string); ok {
+						sp.Err(fmt.Errorf(e))
+					} else if e, ok := err.(fmt.Stringer); ok {
+						sp.Err(fmt.Errorf(e.String()))
+					} else {
+						sp.Err(fmt.Errorf("%+v", err))
+					}
+				} else {
+					state := responseutil.ExtractResponseState(ctx)
+					if state != nil {
+						switch state.Flag() {
+						case responseutil.SUCCESS:
+							sp.Reply(trace.PASS, string(ctx.Response.Body()))
+						case responseutil.FAILURE:
+							sp.Reply(trace.FAIL, string(ctx.Response.Body()))
+						default:
+							sp.Reply(trace.UNSET, string(ctx.Response.Body()))
+						}
+					} else {
+						sp.Reply(trace.UNSET, ctx.Response.Body())
+					}
+				}
+			})
+
+			requestutil.InjectTracer(ctx, tr)
+			requestutil.InjectSpan(ctx, sp)
+
 			if handler != nil {
 				handler(ctx)
 			} else {
@@ -61,13 +103,13 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, recover *Recover
 func (w *RequestWorker) init() {
 	// register the default RequestHandleModule
 	requestHandleModule := NewRequestWorkerHandleModule(w)
-	w.requestHandleService.Register(requestHandleModule)
+	w.RequestHandleService.Register(requestHandleModule)
 	// register the default RouteResolver
-	w.routeResolveService.Register(RouteResolveModuleInstance)
+	w.RouteResolveService.Register(RouteResolveModuleInstance)
 }
 
 func (w *RequestWorker) rewriteRequest(ctx *RequestCtx, path *RoutePath) *RoutePath {
-	handler := w.rewriteHandler
+	handler := w.RewriteHandler
 	if handler != nil {
 		return handler(ctx, path)
 	}
@@ -75,13 +117,13 @@ func (w *RequestWorker) rewriteRequest(ctx *RequestCtx, path *RoutePath) *RouteP
 }
 
 func (h *RequestWorker) processError(ctx *RequestCtx, err interface{}) {
-	if h.errorHandler != nil {
-		h.errorHandler(ctx, err)
+	if h.ErrorHandler != nil {
+		h.ErrorHandler(ctx, err)
 	}
 }
 
 func (w *RequestWorker) processUnhandledRequest(ctx *RequestCtx) {
-	handler := w.unhandledRequestHandler
+	handler := w.UnhandledRequestHandler
 	if handler != nil {
 		handler(ctx)
 	} else {
@@ -90,14 +132,14 @@ func (w *RequestWorker) processUnhandledRequest(ctx *RequestCtx) {
 }
 
 func (w *RequestWorker) start(ctx context.Context) {
-	err := w.requestHandleService.triggerStart(ctx)
+	err := w.RequestHandleService.triggerStart(ctx)
 	if err != nil {
 		FasthttpHostLogger.Fatalf("%+v", err)
 	}
 }
 
 func (w *RequestWorker) stop(ctx context.Context) {
-	for err := range w.requestHandleService.triggerStop(ctx) {
+	for err := range w.RequestHandleService.triggerStop(ctx) {
 		if err != nil {
 			FasthttpHostLogger.Printf("%+v", err)
 		}

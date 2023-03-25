@@ -5,9 +5,9 @@ type RecoverService struct {
 	done uint32
 }
 
-func (s *RecoverService) Defer(f func(err interface{})) *DeferService {
+func (s *RecoverService) Defer(catch func(err interface{})) *DeferService {
 	return &DeferService{
 		recover: s,
-		finally: f,
+		catch:   catch,
 	}
 }

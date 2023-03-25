@@ -6,7 +6,10 @@ import (
 	"os"
 	"reflect"
 
+	"github.com/Bofry/host-fasthttp/internal/tracingutil"
+	"github.com/Bofry/trace"
 	"github.com/valyala/fasthttp"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 const (
@@ -19,7 +22,11 @@ const (
 )
 
 var (
-	typeOfHost = reflect.TypeOf(FasthttpHost{})
+	typeOfHost               = reflect.TypeOf(FasthttpHost{})
+	defaultTracerProvider    = createNoopTracerProvider()
+	defaultTextMapPropagator = createNoopTextMapPropagator()
+	defaultTracer            = defaultTracerProvider.Tracer("")
+	defaultSpanExtractor     = tracingutil.RequestCtxSpanExtractor(0)
 
 	FasthttpHostServiceInstance = new(FasthttpHostModule)
 
@@ -55,10 +62,6 @@ type (
 		OnStart(ctx context.Context) error
 		OnStop(ctx context.Context) error
 	}
-
-	RequestResourceProcessModule interface {
-		ProcessRequestResource(rv reflect.Value)
-	}
 )
 
 // function
@@ -66,3 +69,15 @@ type (
 	ErrorHandler   func(ctx *RequestCtx, err interface{})
 	RewriteHandler func(ctx *RequestCtx, path *RoutePath) *RoutePath
 )
+
+func createNoopTracerProvider() *trace.SeverityTracerProvider {
+	tp, err := trace.NoopProvider()
+	if err != nil {
+		FasthttpHostLogger.Fatalf("cannot create NoopProvider: %v", err)
+	}
+	return tp
+}
+
+func createNoopTextMapPropagator() propagation.TextMapPropagator {
+	return propagation.NewCompositeTextMapPropagator()
+}

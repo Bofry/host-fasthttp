@@ -29,28 +29,28 @@ func (b *RequestManagerBinder) Bind(field structproto.FieldInfo, rv reflect.Valu
 	}
 
 	// assign zero if rv is nil
-	rvRequestHandler := reflectutil.AssignZero(rv)
-	binder := &RequestHandlerBinder{
-		requestHandlerType: rvRequestHandler.Type().Name(),
+	rvRequestComponent := reflectutil.AssignZero(rv)
+	binder := &RequestComponentBinder{
+		requestHandlerType: rvRequestComponent.Type().Name(),
 		components: map[string]reflect.Value{
 			host.APP_CONFIG_FIELD:           b.app.Config(),
 			host.APP_SERVICE_PROVIDER_FIELD: b.app.ServiceProvider(),
 		},
 	}
-	err := b.preformBindRequestHandler(rvRequestHandler, binder)
+	err := b.bindRequestComponent(rvRequestComponent, binder)
 	if err != nil {
 		return err
 	}
 
 	// register RequestHandlers
-	return b.registerRoute(field.Name(), rvRequestHandler)
+	return b.registerRoute(field.IDName(), field.Name(), rvRequestComponent)
 }
 
 func (b *RequestManagerBinder) Deinit(context *structproto.StructProtoContext) error {
 	return nil
 }
 
-func (b *RequestManagerBinder) preformBindRequestHandler(target reflect.Value, binder *RequestHandlerBinder) error {
+func (b *RequestManagerBinder) bindRequestComponent(target reflect.Value, binder *RequestComponentBinder) error {
 	prototype, err := structproto.Prototypify(target,
 		&structproto.StructProtoResolveOption{
 			TagResolver: tagresolver.NoneTagResolver,
@@ -62,18 +62,18 @@ func (b *RequestManagerBinder) preformBindRequestHandler(target reflect.Value, b
 	return prototype.Bind(binder)
 }
 
-func (b *RequestManagerBinder) registerRoute(url string, rvRequestHandler reflect.Value) error {
+func (b *RequestManagerBinder) registerRoute(moduleID, url string, rvRequestComponent reflect.Value) error {
 	// register RequestHandlers
-	count := rvRequestHandler.Type().NumMethod()
+	count := rvRequestComponent.Type().NumMethod()
 	for i := 0; i < count; i++ {
-		method := rvRequestHandler.Type().Method(i)
+		method := rvRequestComponent.Type().Method(i)
 
-		rvMethod := rvRequestHandler.Method(method.Index)
-		if isRequestHandler(rvMethod) {
-			handler := asRequestHandler(rvMethod)
+		rvHandler := rvRequestComponent.Method(method.Index)
+		if isRequestHandler(rvHandler) {
+			handler := asRequestHandler(rvHandler)
 			if handler != nil {
 				// TODO: validate path make comply RFC3986
-				b.registrar.AddRoute(strings.ToUpper(method.Name), url, handler)
+				b.registrar.AddRoute(strings.ToUpper(method.Name), url, handler, moduleID)
 			}
 		}
 	}

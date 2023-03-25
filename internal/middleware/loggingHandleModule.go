@@ -8,7 +8,9 @@ import (
 	"github.com/Bofry/host-fasthttp/response"
 )
 
-var _ RequestHandleModule = new(LoggingHandleModule)
+var (
+	_ RequestHandleModule = new(LoggingHandleModule)
+)
 
 type LoggingHandleModule struct {
 	successor      RequestHandleModule
@@ -33,7 +35,7 @@ func (h *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverSe
 
 		recover.
 			Defer(func(err interface{}) {
-				resp := response.GetResponseFlag(ctx)
+				resp := response.ExtractResponseState(ctx)
 				if err != nil {
 					defer func() {
 						if resp != nil {
@@ -55,7 +57,7 @@ func (h *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverSe
 					eventLog.Flush()
 				}
 			}).
-			Do(func() {
+			Do(func(Finalizer) {
 				h.successor.ProcessRequest(ctx, recover)
 			})
 	}

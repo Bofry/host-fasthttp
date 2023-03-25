@@ -1,16 +1,18 @@
 package response
 
-import http "github.com/valyala/fasthttp"
+import (
+	"github.com/Bofry/host-fasthttp/internal/responseutil"
+	http "github.com/valyala/fasthttp"
+)
 
 func Success(ctx *http.RequestCtx, contentType string, body []byte) {
 	ctx.Success(contentType, body)
 
-	storeResponse(
+	responseutil.InjectResponseState(
 		ctx,
-		&responseImpl{
-			flag:       SUCCESS,
-			statusCode: ctx.Response.StatusCode(),
-		},
+		responseutil.CreateResponseState(
+			SUCCESS,
+			ctx.Response.StatusCode()),
 	)
 }
 
@@ -18,24 +20,11 @@ func Failure(ctx *http.RequestCtx, contentType string, message []byte, statusCod
 	ctx.SetStatusCode(statusCode)
 	ctx.Success(contentType, message)
 
-	storeResponse(
+	responseutil.InjectResponseState(
 		ctx,
-		&responseImpl{
-			flag:       FAILURE,
-			statusCode: statusCode,
-		},
+		responseutil.CreateResponseState(
+			FAILURE,
+			statusCode,
+		),
 	)
-}
-
-func GetResponseFlag(ctx *http.RequestCtx) Response {
-	obj := ctx.UserValue(USER_STORE_RESPONSE_FLAG)
-	v, ok := obj.(Response)
-	if ok {
-		return v
-	}
-	return nil
-}
-
-func storeResponse(ctx *http.RequestCtx, resp Response) {
-	ctx.SetUserValue(USER_STORE_RESPONSE_FLAG, resp)
 }

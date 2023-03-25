@@ -1,19 +1,20 @@
 package response
 
-import http "github.com/valyala/fasthttp"
+import (
+	_ "unsafe"
 
-const (
-	// response flag
-	SUCCESS ResponseFlag = iota
-	FAILURE
-
-	UNKNOWN ResponseFlag = -1
+	"github.com/Bofry/host-fasthttp/internal/responseutil"
+	http "github.com/valyala/fasthttp"
 )
 
 const (
-	// response name in RequestCtx user store
-	USER_STORE_RESPONSE_FLAG string = "github.com/Bofry/host-fasthttp/response::Response"
+	// response flag
+	SUCCESS = responseutil.SUCCESS
+	FAILURE = responseutil.FAILURE
+	UNKNOWN = responseutil.UNKNOWN
+)
 
+const (
 	CONTENT_TYPE_JSON string = "application/json; charset=utf-8"
 	CONTENT_TYPE_TEXT string = "text/plain; charset=utf-8"
 )
@@ -23,14 +24,15 @@ const (
 	Text = TextFormatter("")
 )
 
-type ResponseFlag int
-
-type Response interface {
-	Flag() ResponseFlag
-	StatusCode() int
-}
+type (
+	ResponseFlag  = responseutil.ResponseFlag
+	ResponseState = responseutil.ResponseState
+)
 
 type ContentFormatter interface {
 	Success(ctx *http.RequestCtx, body interface{}) error
 	Failure(ctx *http.RequestCtx, body interface{}, statusCode int) error
 }
+
+//go:linkname ExtractResponseState github.com/Bofry/host-fasthttp/internal/responseutil.ExtractResponseState
+func ExtractResponseState(ctx *http.RequestCtx) ResponseState

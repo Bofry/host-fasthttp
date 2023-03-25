@@ -16,10 +16,10 @@ func TestSuccess(t *testing.T) {
 
 			// check
 			{
-				obj := ctx.UserValue(USER_STORE_RESPONSE_FLAG)
-				v, ok := obj.(Response)
+				obj := ExtractResponseState(ctx)
+				v, ok := obj.(ResponseState)
 				if !ok {
-					t.Errorf("assert 'ctx.UserValue(USER_STORE_RESPONSE_FLAG)':: expected '%s', got '%T'", "Response", v)
+					t.Errorf("assert 'ExtractResponseFlag(ctx)':: expected '%s', got '%T'", "Response", v)
 				}
 				if v.Flag() != SUCCESS {
 					t.Errorf("assert 'Response.Flag()':: expected '%v', got '%v'", SUCCESS, v.Flag())
@@ -74,10 +74,10 @@ func TestFailure(t *testing.T) {
 
 			// check
 			{
-				obj := ctx.UserValue(USER_STORE_RESPONSE_FLAG)
-				v, ok := obj.(Response)
+				obj := ExtractResponseState(ctx)
+				v, ok := obj.(ResponseState)
 				if !ok {
-					t.Errorf("assert 'ctx.UserValue(USER_STORE_RESPONSE_FLAG)':: expected '%s', got '%T'", "Response", v)
+					t.Errorf("assert 'ExtractResponseFlag(ctx)':: expected '%s', got '%T'", "Response", v)
 				}
 				if v.Flag() != FAILURE {
 					t.Errorf("assert 'Response.Flag()':: expected '%v', got '%v'", SUCCESS, v.Flag())

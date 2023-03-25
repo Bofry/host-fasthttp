@@ -9,6 +9,7 @@ import (
 	"github.com/Bofry/host"
 	"github.com/Bofry/trace"
 	"github.com/valyala/fasthttp"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 var _ host.Host = new(FasthttpHost)
@@ -19,13 +20,15 @@ type FasthttpHost struct {
 	EnableCompress bool
 	Version        string
 
-	TracerProvider *trace.SeverityTracerProvider
-	Logger         *log.Logger
+	logger *log.Logger
 
 	requestWorker  *RequestWorker
 	requestManager interface{}
 
-	requestResourceProcessService *RequestResourceProcessService
+	requestHandleService *RequestHandleService
+	routeResolveService  *RouteResolveService
+	router               Router
+	requestTracerService *RequestTracerService
 
 	wg          sync.WaitGroup
 	mutex       sync.Mutex
@@ -94,12 +97,25 @@ func (h *FasthttpHost) Stop(ctx context.Context) error {
 	return err
 }
 
+func (h *FasthttpHost) Logger() *log.Logger {
+	return h.logger
+}
+
 func (h *FasthttpHost) preInit() {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 
-	h.requestWorker = NewRequestWorker()
-	h.requestResourceProcessService = NewRequestHandlerReprocessService()
+	h.router = make(Router)
+	h.routeResolveService = NewRouteResolveService()
+	h.requestHandleService = NewRequestHandleService()
+	h.requestTracerService = NewRequestTracerService()
+
+	h.requestWorker = &RequestWorker{
+		RequestHandleService: h.requestHandleService,
+		RouteResolveService:  h.routeResolveService,
+		Router:               h.router,
+		RequestTracerService: h.requestTracerService,
+	}
 }
 
 func (h *FasthttpHost) init() {
@@ -117,17 +133,23 @@ func (h *FasthttpHost) init() {
 		h.Server = &Server{}
 	}
 
+	h.requestTracerService.init(h.requestManager)
 	h.requestWorker.init()
-	h.processRequestResource()
 	h.configRequestHandler()
 	h.configCompress()
 	h.configListenAddress()
 }
 
-func (h *FasthttpHost) processRequestResource() {
-	if h.requestManager != nil {
-		h.requestResourceProcessService.Process(h.requestManager)
-	}
+func (h *FasthttpHost) setTextMapPropagator(propagator propagation.TextMapPropagator) {
+	h.requestTracerService.TextMapPropagator = propagator
+}
+
+func (h *FasthttpHost) setTracerProvider(provider *trace.SeverityTracerProvider) {
+	h.requestTracerService.TracerProvider = provider
+}
+
+func (h *FasthttpHost) setLogger(l *log.Logger) {
+	h.logger = l
 }
 
 func (h *FasthttpHost) configRequestHandler() {
@@ -168,5 +190,4 @@ func (h *FasthttpHost) configListenAddress() {
 }
 
 func (h *FasthttpHost) onInitComplete() {
-
 }
