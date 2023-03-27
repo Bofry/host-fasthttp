@@ -20,20 +20,41 @@ type RequestWorker struct {
 }
 
 func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
-	w.RequestHandleService.ProcessRequest(ctx, new(RecoverService))
-}
-
-func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, recover *RecoverService) {
 	var (
-		method = w.RouteResolveService.ResolveHttpMethod(ctx)
-		path   = w.RouteResolveService.ResolveHttpPath(ctx)
+		routePath = w.resolveRoutePath(ctx)
 	)
 
-	routePath := &RoutePath{
-		Method: method,
-		Path:   path,
+	// rewriting url
+	routePath = w.rewriteRequest(ctx, routePath)
+	if routePath == nil {
+		panic("invalid RoutePath. The RoutePath should not be nil.")
 	}
 
+	// start tracing
+	var (
+		moduleID = w.Router.FindRequestComponentID(routePath.Method, routePath.Path)
+		carrier  = RequestHeaderCarrier{ctx: ctx}
+
+		tr *trace.SeverityTracer
+		sp *trace.SeveritySpan
+	)
+
+	tr = w.RequestTracerService.Tracer(moduleID)
+	sp = tr.ExtractWithPropagator(
+		ctx,
+		w.RequestTracerService.TextMapPropagator,
+		carrier,
+		routePath.String(),
+		trace.WithNewRoot())
+	defer sp.End()
+
+	requestutil.InjectTracer(ctx, tr)
+	requestutil.InjectSpan(ctx, sp)
+
+	w.RequestHandleService.ProcessRequest(ctx, routePath, new(RecoverService))
+}
+
+func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, routePath *RoutePath, recover *RecoverService) {
 	recover.
 		Defer(func(err interface{}) {
 			if err != nil {
@@ -41,22 +62,7 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, recover *Recover
 			}
 		}).
 		Do(func(finalizer Finalizer) {
-			routePath = w.rewriteRequest(ctx, routePath)
-			if routePath == nil {
-				panic("invalid RoutePath. The RouttPath should not be nil.")
-			}
-
-			handler := w.Router.Get(routePath.Method, routePath.Path)
-
-			moduleID := w.Router.FindRequestComponentID(routePath.Method, routePath.Path)
-			tr := w.RequestTracerService.Tracer(moduleID)
-			carrier := RequestHeaderCarrier{ctx: ctx}
-			sp := tr.ExtractWithPropagator(
-				ctx,
-				w.RequestTracerService.TextMapPropagator,
-				carrier,
-				routePath.String(),
-				trace.WithNewRoot())
+			sp := trace.SpanFromContext(ctx)
 
 			finalizer.Add(func(err interface{}) {
 				defer sp.End()
@@ -74,16 +80,19 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, recover *Recover
 				}
 
 				sp.Tags(
-					trace.Stringer("http.response", &ctx.Response),
+					trace.HttpResponse(ctx.Request.String()),
+					trace.HttpStatusCode(ctx.Response.StatusCode()),
 				)
 			})
 
 			sp.Tags(
-				trace.Stringer("http.request", &ctx.Request),
+				trace.HttpRequest(ctx.Request.String()),
+				trace.HttpMethod(string(ctx.Request.Header.Method())),
+				trace.HttpRequestPath(string(ctx.Request.URI().Path())),
+				trace.HttpUserAgent(string(ctx.Request.Header.UserAgent())),
 			)
 
-			requestutil.InjectTracer(ctx, tr)
-			requestutil.InjectSpan(ctx, sp)
+			handler := w.Router.Get(routePath.Method, routePath.Path)
 
 			if handler != nil {
 				handler(ctx)
@@ -136,5 +145,17 @@ func (w *RequestWorker) stop(ctx context.Context) {
 		if err != nil {
 			FasthttpHostLogger.Printf("%+v", err)
 		}
+	}
+}
+
+func (w *RequestWorker) resolveRoutePath(ctx *RequestCtx) *RoutePath {
+	var (
+		method = w.RouteResolveService.ResolveHttpMethod(ctx)
+		path   = w.RouteResolveService.ResolveHttpPath(ctx)
+	)
+
+	return &RoutePath{
+		Method: method,
+		Path:   path,
 	}
 }

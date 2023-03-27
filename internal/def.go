@@ -57,7 +57,7 @@ type (
 	RequestHandleModule interface {
 		CanSetSuccessor() bool
 		SetSuccessor(successor RequestHandleModule)
-		ProcessRequest(ctx *RequestCtx, recover *RecoverService)
+		ProcessRequest(ctx *RequestCtx, routePath *RoutePath, recover *RecoverService)
 		OnInitComplete()
 		OnStart(ctx context.Context) error
 		OnStop(ctx context.Context) error

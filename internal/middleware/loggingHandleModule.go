@@ -28,7 +28,7 @@ func (h *LoggingHandleModule) SetSuccessor(successor RequestHandleModule) {
 }
 
 // ProcessRequest implements RequestHandleModule
-func (h *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverService) {
+func (h *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, routePath *RoutePath, recover *RecoverService) {
 	if h.successor != nil {
 		eventLog := h.loggingService.CreateEventLog()
 		eventLog.WriteRequest(ctx)
@@ -58,7 +58,7 @@ func (h *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, recover *RecoverSe
 				}
 			}).
 			Do(func(Finalizer) {
-				h.successor.ProcessRequest(ctx, recover)
+				h.successor.ProcessRequest(ctx, routePath, recover)
 			})
 	}
 }
