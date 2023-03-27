@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/Bofry/host-fasthttp/internal/requestutil"
-	"github.com/Bofry/host-fasthttp/internal/responseutil"
 	"github.com/Bofry/trace"
 )
 
@@ -72,22 +71,16 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, recover *Recover
 					} else {
 						sp.Err(fmt.Errorf("%+v", err))
 					}
-				} else {
-					state := responseutil.ExtractResponseState(ctx)
-					if state != nil {
-						switch state.Flag() {
-						case responseutil.SUCCESS:
-							sp.Reply(trace.PASS, string(ctx.Response.Body()))
-						case responseutil.FAILURE:
-							sp.Reply(trace.FAIL, string(ctx.Response.Body()))
-						default:
-							sp.Reply(trace.UNSET, string(ctx.Response.Body()))
-						}
-					} else {
-						sp.Reply(trace.UNSET, ctx.Response.Body())
-					}
 				}
+
+				sp.Tags(
+					trace.Stringer("http.response", &ctx.Response),
+				)
 			})
+
+			sp.Tags(
+				trace.Stringer("http.request", &ctx.Request),
+			)
 
 			requestutil.InjectTracer(ctx, tr)
 			requestutil.InjectSpan(ctx, sp)

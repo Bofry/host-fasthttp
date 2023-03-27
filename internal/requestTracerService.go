@@ -32,8 +32,6 @@ func (s *RequestTracerService) Tracer(id string) *trace.SeverityTracer {
 }
 
 func (s *RequestTracerService) init(requestManager interface{}) {
-	trace.SetSpanExtractor(defaultSpanExtractor)
-
 	if s.TextMapPropagator == nil {
 		s.TextMapPropagator = defaultTextMapPropagator
 	}
@@ -41,6 +39,8 @@ func (s *RequestTracerService) init(requestManager interface{}) {
 		s.TracerProvider = defaultTracerProvider
 	}
 	if s.Enabled {
+		trace.SetSpanExtractor(defaultSpanExtractor)
+
 		s.ensureTracerMap()
 		s.buildTracer(requestManager)
 	}
