@@ -104,12 +104,6 @@ func (app *App) ConfigureTracerProvider() {
 	}
 
 	trace.SetTracerProvider(tp)
-	fmt.Printf("****tp: %+v\n", tp)
-
-	// tr := tp.Tracer("app")
-	// sp := tr.Open(nil, "ConfigureTracerProvider")
-	// defer sp.End()
-	// sp.Info("app~~~~")
 }
 
 func (app *App) TracerProvider() *trace.SeverityTracerProvider {
