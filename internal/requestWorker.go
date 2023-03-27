@@ -100,7 +100,7 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, state RequestSta
 				}
 
 				sp.Tags(
-					trace.HttpResponse(ctx.Request.String()),
+					trace.HttpResponse(ctx.Response.String()),
 					trace.HttpStatusCode(ctx.Response.StatusCode()),
 				)
 			})
