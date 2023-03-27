@@ -6,39 +6,35 @@ import (
 
 	fasthttp "github.com/Bofry/host-fasthttp"
 	"github.com/Bofry/host-fasthttp/response"
-	"github.com/Bofry/trace"
 )
 
-var _ fasthttp.EventLog = new(EventLog)
+var _ fasthttp.EventLog = EventLog{}
 
 type EventLog struct {
-	logger *log.Logger
+	logger   *log.Logger
+	evidence fasthttp.EventEvidence
 }
 
-func (l *EventLog) WriteError(ctx *fasthttp.RequestCtx, err interface{}, stackTrace []byte) {
+func (l EventLog) WriteError(ctx *fasthttp.RequestCtx, err interface{}, stackTrace []byte) {
 	l.logger.Printf("EventLog.WriteError(): %v\n", err)
 }
 
-func (l *EventLog) WriteRequest(ctx *fasthttp.RequestCtx) {
-	sp := trace.SpanFromContext(ctx)
+func (l EventLog) WriteRequest(ctx *fasthttp.RequestCtx) {
+	traceID := fmt.Sprintf("%s-%s",
+		l.evidence.RequestTraceID(),
+		l.evidence.RequestSpanID())
 
-	trace := fmt.Sprintf("%s-%s",
-		sp.TraceID(),
-		sp.SpanID())
-
-	l.logger.Printf("EventLog.WriteRequest(): (%s) %s %s\n", trace, ctx.Method(), ctx.Path())
+	l.logger.Printf("EventLog.WriteRequest(): (%s) %s %s\n", traceID, ctx.Method(), ctx.Path())
 }
 
-func (l *EventLog) WriteResponse(ctx *fasthttp.RequestCtx, flag response.ResponseFlag) {
-	sp := trace.SpanFromContext(ctx)
+func (l EventLog) WriteResponse(ctx *fasthttp.RequestCtx, flag response.ResponseFlag) {
+	traceID := fmt.Sprintf("%s-%s",
+		l.evidence.RequestTraceID(),
+		l.evidence.RequestSpanID())
 
-	trace := fmt.Sprintf("%s-%s",
-		sp.TraceID(),
-		sp.SpanID())
-
-	l.logger.Printf("EventLog.WriteResponse(): (%s) %d [%v]\n", trace, ctx.Response.StatusCode(), flag)
+	l.logger.Printf("EventLog.WriteResponse(): (%s) %d [%v]\n", traceID, ctx.Response.StatusCode(), flag)
 }
 
-func (l *EventLog) Flush() {
+func (l EventLog) Flush() {
 	l.logger.Println("EventLog.Flush()")
 }

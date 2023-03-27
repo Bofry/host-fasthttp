@@ -25,8 +25,8 @@ func (r *StdRequestHandleModule) SetSuccessor(successor RequestHandleModule) {
 }
 
 // ProcessRequest implements RequestHandleModule
-func (r *StdRequestHandleModule) ProcessRequest(ctx *RequestCtx, routePath *RoutePath, recover *RecoverService) {
-	r.worker.internalProcessRequest(ctx, routePath, recover)
+func (r *StdRequestHandleModule) ProcessRequest(ctx *RequestCtx, state RequestState, recover *RecoverService) {
+	r.worker.internalProcessRequest(ctx, state, recover)
 }
 
 // OnInitComplete implements RequestHandleModule

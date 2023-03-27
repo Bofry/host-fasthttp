@@ -12,10 +12,11 @@ type LoggingService struct {
 	logger *log.Logger
 }
 
-func (s *LoggingService) CreateEventLog() fasthttp.EventLog {
+func (s *LoggingService) CreateEventLog(ev fasthttp.EventEvidence) fasthttp.EventLog {
 	s.logger.Println("CreateEventLog()")
-	return &EventLog{
-		logger: s.logger,
+	return EventLog{
+		logger:   s.logger,
+		evidence: ev,
 	}
 }
 

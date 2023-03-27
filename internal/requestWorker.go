@@ -35,26 +35,34 @@ func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
 		moduleID = w.Router.FindRequestComponentID(routePath.Method, routePath.Path)
 		carrier  = RequestHeaderCarrier{ctx: ctx}
 
-		tr *trace.SeverityTracer
-		sp *trace.SeveritySpan
+		spanName string = unhandledRequestSpanName
+		tr       *trace.SeverityTracer
+		sp       *trace.SeveritySpan
 	)
+
+	if w.Router.Has(*routePath) {
+		spanName = routePath.String()
+	}
 
 	tr = w.RequestTracerService.Tracer(moduleID)
 	sp = tr.ExtractWithPropagator(
 		ctx,
 		w.RequestTracerService.TextMapPropagator,
 		carrier,
-		routePath.String(),
+		spanName,
 		trace.WithNewRoot())
 	defer sp.End()
 
-	requestutil.InjectTracer(ctx, tr)
-	requestutil.InjectSpan(ctx, sp)
+	requestState := RequestState{
+		RoutePath: routePath,
+		Tracer:    tr,
+		Span:      sp,
+	}
 
-	w.RequestHandleService.ProcessRequest(ctx, routePath, new(RecoverService))
+	w.RequestHandleService.ProcessRequest(ctx, requestState, new(RecoverService))
 }
 
-func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, routePath *RoutePath, recover *RecoverService) {
+func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, state RequestState, recover *RecoverService) {
 	recover.
 		Defer(func(err interface{}) {
 			if err != nil {
@@ -62,9 +70,21 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, routePath *Route
 			}
 		}).
 		Do(func(finalizer Finalizer) {
-			sp := trace.SpanFromContext(ctx)
+			var (
+				tr        *trace.SeverityTracer = state.Tracer
+				sp        *trace.SeveritySpan   = state.Span
+				routePath *RoutePath            = state.RoutePath
+			)
+
+			// set Tracer and Span
+			requestutil.InjectTracer(ctx, tr)
+			requestutil.InjectSpan(ctx, sp)
 
 			finalizer.Add(func(err interface{}) {
+				// unset Tracer and Span
+				requestutil.InjectTracer(ctx, nil)
+				requestutil.InjectSpan(ctx, nil)
+
 				defer sp.End()
 
 				if err != nil {
@@ -93,7 +113,6 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, routePath *Route
 			)
 
 			handler := w.Router.Get(routePath.Method, routePath.Path)
-
 			if handler != nil {
 				handler(ctx)
 			} else {

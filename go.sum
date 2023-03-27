@@ -56,6 +56,8 @@ github.com/Bofry/trace v0.0.0-20230327033802-18c69e56f455 h1:XzhRY0l7AtycuXImar8
 github.com/Bofry/trace v0.0.0-20230327033802-18c69e56f455/go.mod h1:PZxbK9ssiNWGM0rYpT5Xm3h6vkKQLze/7kCxdbNYgFQ=
 github.com/Bofry/trace v0.0.0-20230327034120-92cbcd9e632f h1:AJApd86rtNz+psTWwOMTAlRzoul/I2VrboCvvcNvYCU=
 github.com/Bofry/trace v0.0.0-20230327034120-92cbcd9e632f/go.mod h1:PZxbK9ssiNWGM0rYpT5Xm3h6vkKQLze/7kCxdbNYgFQ=
+github.com/Bofry/trace v0.0.0-20230327070031-663464d25b86 h1:7n2aKp8wtar/zo/QvnqJ/6AsyVISsc3ALptJBSWEckw=
+github.com/Bofry/trace v0.0.0-20230327070031-663464d25b86/go.mod h1:PZxbK9ssiNWGM0rYpT5Xm3h6vkKQLze/7kCxdbNYgFQ=
 github.com/Bofry/types v0.1.0 h1:lEM+LcPWlC1ByerJlp0cZ4tCCosR9lemVDvu9kATV1Y=
 github.com/Bofry/types v0.1.0/go.mod h1:O0I2TpZ3YfKDgTnJO5zeaX9LO7vtdhGnwbz/oP4cKUw=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=

@@ -14,6 +14,7 @@ type (
 
 // interface
 type (
+	EventEvidence  = middleware.EventEvidence
 	LoggingService = middleware.LoggingService
 	EventLog       = middleware.EventLog
 )

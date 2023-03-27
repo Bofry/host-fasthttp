@@ -27,9 +27,9 @@ func (s *RequestHandleService) Register(module RequestHandleModule) {
 	s.modules = append(s.modules, module)
 }
 
-func (s *RequestHandleService) ProcessRequest(ctx *RequestCtx, routePath *RoutePath, recover *RecoverService) {
+func (s *RequestHandleService) ProcessRequest(ctx *RequestCtx, state RequestState, recover *RecoverService) {
 	if handler := s.first(); handler != nil {
-		handler.ProcessRequest(ctx, routePath, recover)
+		handler.ProcessRequest(ctx, state, recover)
 	}
 }
 

@@ -25,8 +25,8 @@ var (
 	typeOfHost               = reflect.TypeOf(FasthttpHost{})
 	defaultTracerProvider    = createNoopTracerProvider()
 	defaultTextMapPropagator = createNoopTextMapPropagator()
-	defaultTracer            = defaultTracerProvider.Tracer("")
 	defaultSpanExtractor     = tracingutil.RequestCtxSpanExtractor(0)
+	unhandledRequestSpanName = "unknown path"
 
 	FasthttpHostServiceInstance = new(FasthttpHostModule)
 
@@ -57,7 +57,7 @@ type (
 	RequestHandleModule interface {
 		CanSetSuccessor() bool
 		SetSuccessor(successor RequestHandleModule)
-		ProcessRequest(ctx *RequestCtx, routePath *RoutePath, recover *RecoverService)
+		ProcessRequest(ctx *RequestCtx, state RequestState, recover *RecoverService)
 		OnInitComplete()
 		OnStart(ctx context.Context) error
 		OnStop(ctx context.Context) error

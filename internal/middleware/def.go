@@ -17,7 +17,7 @@ var (
 
 type (
 	LoggingService interface {
-		CreateEventLog() EventLog
+		CreateEventLog(ev EventEvidence) EventLog
 		ConfigureLogger(l *log.Logger)
 	}
 

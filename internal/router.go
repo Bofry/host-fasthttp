@@ -36,6 +36,17 @@ func (r Router) Get(method string, path string) RequestHandler {
 	return nil
 }
 
+func (r Router) Has(path RoutePath) bool {
+	if r == nil {
+		return false
+	}
+
+	if _, ok := r[path]; ok {
+		return true
+	}
+	return false
+}
+
 func (r Router) FindRequestComponentID(method string, path string) string {
 	if r == nil {
 		return ""

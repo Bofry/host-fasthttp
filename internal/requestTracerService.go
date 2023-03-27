@@ -15,6 +15,8 @@ type RequestTracerService struct {
 	tracers            map[string]*trace.SeverityTracer
 	tracersInitializer sync.Once
 
+	unhandledRequestTracer *trace.SeverityTracer
+
 	Enabled bool
 }
 
@@ -28,7 +30,7 @@ func (s *RequestTracerService) Tracer(id string) *trace.SeverityTracer {
 			return tr
 		}
 	}
-	return defaultTracer
+	return s.unhandledRequestTracer
 }
 
 func (s *RequestTracerService) init(requestManager interface{}) {
@@ -41,16 +43,16 @@ func (s *RequestTracerService) init(requestManager interface{}) {
 	if s.Enabled {
 		trace.SetSpanExtractor(defaultSpanExtractor)
 
-		s.ensureTracerMap()
+		s.makeTracerMap()
 		s.buildTracer(requestManager)
 	}
+	s.makeUnhandledRequestTracer()
 }
 
-func (s *RequestTracerService) ensureTracerMap() map[string]*trace.SeverityTracer {
+func (s *RequestTracerService) makeTracerMap() {
 	s.tracersInitializer.Do(func() {
 		s.tracers = make(map[string]*trace.SeverityTracer)
 	})
-	return s.tracers
 }
 
 func (s *RequestTracerService) buildTracer(requestManager interface{}) {
@@ -85,7 +87,7 @@ func (s *RequestTracerService) buildTracer(requestManager interface{}) {
 }
 
 func (s *RequestTracerService) registerTracer(id string, tracer *trace.SeverityTracer) {
-	container := s.ensureTracerMap()
+	container := s.tracers
 
 	if tracer != nil {
 		if _, ok := container[id]; ok {
@@ -93,4 +95,16 @@ func (s *RequestTracerService) registerTracer(id string, tracer *trace.SeverityT
 		}
 		container[id] = tracer
 	}
+}
+
+func (s *RequestTracerService) makeUnhandledRequestTracer() {
+	var (
+		tp *trace.SeverityTracerProvider = defaultTracerProvider
+	)
+
+	if s.Enabled {
+		tp = s.TracerProvider
+	}
+
+	s.unhandledRequestTracer = tp.Tracer("")
 }
