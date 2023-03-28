@@ -20,13 +20,15 @@ import (
 )
 
 type RequestManager struct {
-	*RootRequest     `url:"/"`
-	*EchoRequest     `url:"/Echo"`
-	*SettingRequest  `url:"/Setting"`
-	*AccidentRequest `url:"/Accident"`
-	*JsonRequest     `url:"/Json"`
-	*TextRequest     `url:"/Text"`
-	*TracingRequest  `url:"/Tracing"`
+	*RootRequest          `url:"/"`
+	*EchoRequest          `url:"/Echo"`
+	*SettingRequest       `url:"/Setting"`
+	*AccidentRequest      `url:"/Accident"`
+	*JsonRequest          `url:"/Json"`
+	*TextRequest          `url:"/Text"`
+	*TracingRequest       `url:"/Tracing"`
+	*HttpProxyRequest     `url:"/Proxy/http"`
+	*FasthttpProxyRequest `url:"/Proxy/fasthttp"`
 }
 
 func TestApp_Sanity(t *testing.T) {
@@ -63,7 +65,7 @@ func TestApp_Sanity(t *testing.T) {
 				}
 				fmt.Fprintf(&errorBuffer, "err: %+v", err)
 			}),
-			fasthttp.UseLogging(&LoggingService{}),
+			// fasthttp.UseLogging(&LoggingService{}),
 			fasthttp.UseTracing(true),
 			fasthttp.UseRewriter(func(ctx *fasthttp.RequestCtx, path *fasthttp.RoutePath) *fasthttp.RoutePath {
 				if strings.HasPrefix(path.Path, "/Echo/") {
@@ -289,6 +291,34 @@ func TestApp_Sanity(t *testing.T) {
 		}
 		// just test tracing, without check response
 		client.Do(req)
+	}
+	{
+		req, err := http.NewRequest("POST", "http://127.0.0.1:10094/Proxy/http", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "OK" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("POST", "http://127.0.0.1:10094/Proxy/fasthttp", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "OK" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
 	}
 
 	select {

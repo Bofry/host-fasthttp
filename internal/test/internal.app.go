@@ -130,6 +130,18 @@ func (provider *ServiceProvider) Init(conf *Config) {
 	}
 }
 
+func (provider *ServiceProvider) TracerProvider() *trace.SeverityTracerProvider {
+	return trace.GetTracerProvider()
+}
+
+func (provider *ServiceProvider) TextMapPropagator() propagation.TextMapPropagator {
+	return trace.GetTextMapPropagator()
+}
+
+func (provider *ServiceProvider) Logger() *log.Logger {
+	return logger
+}
+
 func (h *Host) Init(conf *Config) {
 	h.Server = &fasthttp.Server{
 		Name:                          conf.ServerName,

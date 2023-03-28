@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Bofry/host-fasthttp/internal/requestutil"
+	"github.com/Bofry/host-fasthttp/internal/tracingutil"
 	"github.com/Bofry/trace"
 )
 
@@ -33,7 +34,7 @@ func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
 	// start tracing
 	var (
 		componentID = w.Router.FindRequestComponentID(routePath.Method, routePath.Path)
-		carrier     = RequestHeaderCarrier{ctx: ctx}
+		carrier     = tracingutil.NewRequestHeaderCarrier(&ctx.Request.Header)
 
 		spanName string = unhandledRequestSpanName
 		tr       *trace.SeverityTracer
@@ -49,8 +50,7 @@ func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
 		ctx,
 		w.RequestTracerService.TextMapPropagator,
 		carrier,
-		spanName,
-		trace.WithNewRoot())
+		spanName)
 	defer sp.End()
 
 	requestState := RequestState{
