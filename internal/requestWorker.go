@@ -32,8 +32,8 @@ func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
 
 	// start tracing
 	var (
-		moduleID = w.Router.FindRequestComponentID(routePath.Method, routePath.Path)
-		carrier  = RequestHeaderCarrier{ctx: ctx}
+		componentID = w.Router.FindRequestComponentID(routePath.Method, routePath.Path)
+		carrier     = RequestHeaderCarrier{ctx: ctx}
 
 		spanName string = unhandledRequestSpanName
 		tr       *trace.SeverityTracer
@@ -44,7 +44,7 @@ func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
 		spanName = routePath.String()
 	}
 
-	tr = w.RequestTracerService.Tracer(moduleID)
+	tr = w.RequestTracerService.Tracer(componentID)
 	sp = tr.ExtractWithPropagator(
 		ctx,
 		w.RequestTracerService.TextMapPropagator,
