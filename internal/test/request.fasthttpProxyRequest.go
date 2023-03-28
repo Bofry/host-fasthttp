@@ -2,8 +2,8 @@ package test
 
 import (
 	fasthttp "github.com/Bofry/host-fasthttp"
-	"github.com/Bofry/host-fasthttp/internal/tracingutil"
 	"github.com/Bofry/host-fasthttp/response"
+	"github.com/Bofry/host-fasthttp/tracing"
 	"github.com/Bofry/trace"
 	http "github.com/valyala/fasthttp"
 )
@@ -23,7 +23,7 @@ func (r *FasthttpProxyRequest) POST(ctx *fasthttp.RequestCtx) {
 	req.SetRequestURI(ctx.URI().String())
 	req.Header.DisableNormalizing()
 	req.Header.SetMethod("DO")
-	carrier := tracingutil.NewRequestHeaderCarrier(&req.Header)
+	carrier := tracing.NewRequestHeaderCarrier(&req.Header)
 	sp.Inject(r.ServiceProvider.TextMapPropagator(), carrier)
 
 	http.Do(req, resp)
