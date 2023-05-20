@@ -44,23 +44,23 @@ func TestTextFormatterSuccess(t *testing.T) {
 			// t.Logf("result: %v", resp.Header.String())
 			// t.Logf("result: %v", string(resp.Body()))
 
-			var exceptedStatusCode = 200
-			if resp.StatusCode() != exceptedStatusCode {
-				t.Errorf("status code: except %v, got %v", exceptedStatusCode, resp.StatusCode())
+			var expectedStatusCode = 200
+			if resp.StatusCode() != expectedStatusCode {
+				t.Errorf("status code: expect %v, got %v", expectedStatusCode, resp.StatusCode())
 			}
 			var (
-				exceptedContentType = "text/plain; charset=utf-8"
+				expectedContentType = "text/plain; charset=utf-8"
 				actualContentType   = string(resp.Header.Peek("Content-Type"))
 			)
-			if actualContentType != exceptedContentType {
-				t.Errorf("content-type: except %v, got %v", exceptedContentType, actualContentType)
+			if actualContentType != expectedContentType {
+				t.Errorf("content-type: expect %v, got %v", expectedContentType, actualContentType)
 			}
 			var (
-				exceptedBody = "OK"
+				expectedBody = "OK"
 				actualBody   = string(resp.Body())
 			)
-			if actualBody != exceptedBody {
-				t.Errorf("body: except %v, got %v", exceptedBody, actualBody)
+			if actualBody != expectedBody {
+				t.Errorf("body: expect %v, got %v", expectedBody, actualBody)
 			}
 		})
 }
@@ -102,23 +102,23 @@ func TestTextFormatterFailure(t *testing.T) {
 			// t.Logf("result: %v", resp.Header.String())
 			// t.Logf("result: %v", string(resp.Body()))
 
-			var exceptedStatusCode = 400
-			if resp.StatusCode() != exceptedStatusCode {
-				t.Errorf("status code: except %v, got %v", exceptedStatusCode, resp.StatusCode())
+			var expectedStatusCode = 400
+			if resp.StatusCode() != expectedStatusCode {
+				t.Errorf("status code: expect %v, got %v", expectedStatusCode, resp.StatusCode())
 			}
 			var (
-				exceptedContentType = "text/plain; charset=utf-8"
+				expectedContentType = "text/plain; charset=utf-8"
 				actualContentType   = string(resp.Header.Peek("Content-Type"))
 			)
-			if actualContentType != exceptedContentType {
-				t.Errorf("content-type: except %v, got %v", exceptedContentType, actualContentType)
+			if actualContentType != expectedContentType {
+				t.Errorf("content-type: expect %v, got %v", expectedContentType, actualContentType)
 			}
 			var (
-				exceptedBody = "UNKNOWN_ERROR"
+				expectedBody = "UNKNOWN_ERROR"
 				actualBody   = string(resp.Body())
 			)
-			if actualBody != exceptedBody {
-				t.Errorf("body: except %v, got %v", exceptedBody, actualBody)
+			if actualBody != expectedBody {
+				t.Errorf("body: expect %v, got %v", expectedBody, actualBody)
 			}
 		})
 }

@@ -8,8 +8,8 @@ import (
 	"github.com/Bofry/host"
 	"github.com/Bofry/host-fasthttp/internal"
 	"github.com/Bofry/structproto"
+	"github.com/Bofry/structproto/reflecting"
 	"github.com/Bofry/structproto/tagresolver"
-	"github.com/Bofry/structproto/util/reflectutil"
 )
 
 var _ structproto.StructBinder = new(RequestManagerBinder)
@@ -29,7 +29,7 @@ func (b *RequestManagerBinder) Bind(field structproto.FieldInfo, rv reflect.Valu
 	}
 
 	// assign zero if rv is nil
-	rvRequestComponent := reflectutil.AssignZero(rv)
+	rvRequestComponent := reflecting.AssignZero(rv)
 	binder := &RequestComponentBinder{
 		requestHandlerType: rvRequestComponent.Type().Name(),
 		components: map[string]reflect.Value{

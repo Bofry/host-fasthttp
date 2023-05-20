@@ -94,13 +94,19 @@ func (app *App) Logger() *log.Logger {
 }
 
 func (app *App) ConfigureTracerProvider() {
+	if len(app.Config.JaegerTraceUrl) == 0 {
+		tp, _ := trace.NoopProvider()
+		trace.SetTracerProvider(tp)
+		return
+	}
+
 	tp, err := trace.JaegerProvider(app.Config.JaegerTraceUrl,
 		trace.ServiceName("fasthttp-trace-demo"),
 		trace.Environment("go-test"),
 		trace.Pid(),
 	)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	trace.SetTracerProvider(tp)

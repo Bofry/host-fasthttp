@@ -6,7 +6,7 @@ import (
 
 	"github.com/Bofry/host"
 	"github.com/Bofry/structproto"
-	"github.com/Bofry/structproto/util/reflectutil"
+	"github.com/Bofry/structproto/reflecting"
 )
 
 var _ structproto.StructBinder = new(RequestComponentBinder)
@@ -28,7 +28,7 @@ func (b *RequestComponentBinder) Bind(field structproto.FieldInfo, target reflec
 				b.requestHandlerType)
 		}
 
-		target = reflectutil.AssignZero(target)
+		target = reflecting.AssignZero(target)
 		if v.Type().ConvertibleTo(target.Type()) {
 			target.Set(v.Convert(target.Type()))
 		}
