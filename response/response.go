@@ -5,6 +5,14 @@ import (
 	http "github.com/valyala/fasthttp"
 )
 
+func SendSuccess(ctx *http.RequestCtx, resp *http.Response) {
+	Success(ctx, string(resp.Header.ContentType()), resp.Body())
+}
+
+func SendFailure(ctx *http.RequestCtx, resp *http.Response) {
+	Failure(ctx, string(resp.Header.ContentType()), resp.Body(), resp.StatusCode())
+}
+
 func Success(ctx *http.RequestCtx, contentType string, body []byte) {
 	ctx.Success(contentType, body)
 

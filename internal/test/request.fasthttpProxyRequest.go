@@ -28,9 +28,7 @@ func (r *FasthttpProxyRequest) POST(ctx *fasthttp.RequestCtx) {
 
 	http.Do(req, resp)
 
-	response.Success(ctx,
-		string(resp.Header.ContentType()),
-		resp.Body())
+	response.SendSuccess(ctx, resp)
 }
 
 func (r *FasthttpProxyRequest) DO(ctx *fasthttp.RequestCtx) {
