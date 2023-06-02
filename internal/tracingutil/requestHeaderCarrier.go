@@ -24,6 +24,8 @@ func NewRequestHeaderCarrier(header *http.RequestHeader) *RequestHeaderCarrier {
 
 // Get returns the value associated with the passed key.
 func (hc RequestHeaderCarrier) Get(key string) string {
+	hc.header.DisableNormalizing()
+
 	var value = string(hc.header.Peek(key))
 	if len(value) == 0 {
 		// NOTE: patch compatibility
@@ -31,12 +33,18 @@ func (hc RequestHeaderCarrier) Get(key string) string {
 		canonicalHeaderKey := textproto.CanonicalMIMEHeaderKey(key)
 		value = string(hc.header.Peek(canonicalHeaderKey))
 	}
+
+	hc.header.EnableNormalizing()
 	return value
 }
 
 // Set stores the key-value pair.
 func (hc RequestHeaderCarrier) Set(key string, value string) {
+	// NOTE: patch compatibility
+	// https://www.w3.org/TR/trace-context/#header-name
+	hc.header.DisableNormalizing()
 	hc.header.Set(key, value)
+	hc.header.EnableNormalizing()
 }
 
 // Keys lists the keys stored in this carrier.

@@ -2,10 +2,9 @@ package test
 
 import (
 	fasthttp "github.com/Bofry/host-fasthttp"
+	"github.com/Bofry/host-fasthttp/http"
 	"github.com/Bofry/host-fasthttp/response"
-	"github.com/Bofry/host-fasthttp/tracing"
 	"github.com/Bofry/trace"
-	http "github.com/valyala/fasthttp"
 )
 
 type FasthttpProxyRequest struct {
@@ -21,12 +20,11 @@ func (r *FasthttpProxyRequest) POST(ctx *fasthttp.RequestCtx) {
 	defer http.ReleaseResponse(resp)
 
 	req.SetRequestURI(ctx.URI().String())
-	req.Header.DisableNormalizing()
 	req.Header.SetMethod("DO")
-	carrier := tracing.NewRequestHeaderCarrier(&req.Header)
-	sp.Inject(r.ServiceProvider.TextMapPropagator(), carrier)
 
-	http.Do(req, resp)
+	http.Do(req, resp,
+		http.WithTracePropagation(sp.Context(), r.ServiceProvider.TextMapPropagator()),
+	)
 
 	response.SendSuccess(ctx, resp)
 }
