@@ -21,6 +21,7 @@ type clientURLResponse struct {
 	err        error
 }
 
+// An extenstion method for github.com/valyala/fasthttp.Do()
 func Do(req *fasthttp.Request, resp *fasthttp.Response, opts ...HttpClientOption) error {
 	for _, opt := range opts {
 		err := opt.apply(req, resp)
@@ -31,6 +32,7 @@ func Do(req *fasthttp.Request, resp *fasthttp.Response, opts ...HttpClientOption
 	return fasthttp.Do(req, resp)
 }
 
+// An extenstion method for github.com/valyala/fasthttp.DoTimeout()
 func DoTimeout(req *fasthttp.Request, resp *fasthttp.Response, timeout time.Duration, opts ...HttpClientOption) error {
 	for _, opt := range opts {
 		err := opt.apply(req, resp)
@@ -41,6 +43,7 @@ func DoTimeout(req *fasthttp.Request, resp *fasthttp.Response, timeout time.Dura
 	return fasthttp.DoTimeout(req, resp, timeout)
 }
 
+// An extenstion method for github.com/valyala/fasthttp.DoDeadline()
 func DoDeadline(req *fasthttp.Request, resp *fasthttp.Response, deadline time.Time, opts ...HttpClientOption) error {
 	for _, opt := range opts {
 		err := opt.apply(req, resp)
@@ -51,6 +54,7 @@ func DoDeadline(req *fasthttp.Request, resp *fasthttp.Response, deadline time.Ti
 	return fasthttp.DoDeadline(req, resp, deadline)
 }
 
+// An extenstion method for github.com/valyala/fasthttp.DoRedirects()
 func DoRedirects(req *fasthttp.Request, resp *fasthttp.Response, maxRedirectsCount int, opts ...HttpClientOption) error {
 	for _, opt := range opts {
 		err := opt.apply(req, resp)
@@ -61,6 +65,7 @@ func DoRedirects(req *fasthttp.Request, resp *fasthttp.Response, maxRedirectsCou
 	return fasthttp.DoRedirects(req, resp, maxRedirectsCount)
 }
 
+// An extenstion method for github.com/valyala/fasthttp.Get()
 func Get(dst []byte, url string, opts ...HttpClientOption) (statusCode int, body []byte, err error) {
 	req := AcquireRequest()
 	resp := AcquireResponse()
@@ -79,11 +84,13 @@ func Get(dst []byte, url string, opts ...HttpClientOption) (statusCode int, body
 	return
 }
 
+// An extenstion method for github.com/valyala/fasthttp.GetTimeout()
 func GetTimeout(dst []byte, url string, timeout time.Duration, opts ...HttpClientOption) (statusCode int, body []byte, err error) {
 	deadline := time.Now().Add(timeout)
 	return GetDeadline(dst, url, deadline, opts...)
 }
 
+// An extenstion method for github.com/valyala/fasthttp.GetDeadline()
 func GetDeadline(dst []byte, url string, deadline time.Time, opts ...HttpClientOption) (statusCode int, body []byte, err error) {
 	timeout := -time.Since(deadline)
 	if timeout <= 0 {
@@ -158,6 +165,7 @@ func GetDeadline(dst []byte, url string, deadline time.Time, opts ...HttpClientO
 	return statusCode, body, err
 }
 
+// An extenstion method for github.com/valyala/fasthttp.Post()
 func Post(dst []byte, url string, postArgs *fasthttp.Args, opts ...HttpClientOption) (statusCode int, body []byte, err error) {
 	req := AcquireRequest()
 	resp := AcquireResponse()
