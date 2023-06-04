@@ -2,14 +2,14 @@ package internal
 
 type Router map[RoutePath]RouteComponent
 
-func (r Router) Add(method string, path string, handler RequestHandler, requestComponentID string) {
+func (r Router) Add(method string, path string, handler RequestHandler, handlerComponentID string) {
 	key := RoutePath{
 		Method: method,
 		Path:   path,
 	}
 	r[key] = RouteComponent{
 		RequestHandler:     handler,
-		RequestComponentID: requestComponentID,
+		HandlerComponentID: handlerComponentID,
 	}
 }
 
@@ -47,7 +47,7 @@ func (r Router) Has(path RoutePath) bool {
 	return false
 }
 
-func (r Router) FindRequestComponentID(method string, path string) string {
+func (r Router) FindHandlerComponentID(method string, path string) string {
 	if r == nil {
 		return ""
 	}
@@ -57,7 +57,7 @@ func (r Router) FindRequestComponentID(method string, path string) string {
 		Path:   path,
 	}
 	if v, ok := r[key]; ok {
-		return v.RequestComponentID
+		return v.HandlerComponentID
 	}
 	return ""
 }

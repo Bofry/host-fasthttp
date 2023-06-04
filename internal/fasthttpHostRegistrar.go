@@ -38,6 +38,6 @@ func (p *FasthttpHostRegistrar) SetRequestManager(requestManager interface{}) {
 	p.host.requestManager = requestManager
 }
 
-func (p *FasthttpHostRegistrar) AddRoute(method string, path string, handler RequestHandler, requestComponentID string) {
-	p.host.router.Add(method, path, handler, requestComponentID)
+func (p *FasthttpHostRegistrar) AddRoute(method string, path string, handler RequestHandler, handlerComponentID string) {
+	p.host.router.Add(method, path, handler, handlerComponentID)
 }

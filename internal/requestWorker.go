@@ -33,7 +33,7 @@ func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
 
 	// start tracing
 	var (
-		componentID = w.Router.FindRequestComponentID(routePath.Method, routePath.Path)
+		componentID = w.Router.FindHandlerComponentID(routePath.Method, routePath.Path)
 		carrier     = tracingutil.NewRequestHeaderCarrier(&ctx.Request.Header)
 
 		spanName string = unhandledRequestSpanName

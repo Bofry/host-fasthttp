@@ -30,14 +30,14 @@ func (b *RequestManagerBinder) Bind(field structproto.FieldInfo, rv reflect.Valu
 
 	// assign zero if rv is nil
 	rvRequestComponent := reflecting.AssignZero(rv)
-	binder := &RequestComponentBinder{
+	binder := &RequestHandlerComponentBinder{
 		requestHandlerType: rvRequestComponent.Type().Name(),
 		components: map[string]reflect.Value{
 			host.APP_CONFIG_FIELD:           b.app.Config(),
 			host.APP_SERVICE_PROVIDER_FIELD: b.app.ServiceProvider(),
 		},
 	}
-	err := b.bindRequestComponent(rvRequestComponent, binder)
+	err := b.bindRequestHandlerComponent(rvRequestComponent, binder)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (b *RequestManagerBinder) Deinit(context *structproto.StructProtoContext) e
 	return nil
 }
 
-func (b *RequestManagerBinder) bindRequestComponent(target reflect.Value, binder *RequestComponentBinder) error {
+func (b *RequestManagerBinder) bindRequestHandlerComponent(target reflect.Value, binder *RequestHandlerComponentBinder) error {
 	prototype, err := structproto.Prototypify(target,
 		&structproto.StructProtoResolveOption{
 			TagResolver: tagresolver.NoneTagResolver,
