@@ -10,7 +10,7 @@ func Startup(app interface{}) *host.Starter {
 		starter = host.Startup(app)
 	)
 
-	host.RegisterHostModule(starter, internal.FasthttpHostServiceInstance)
+	host.RegisterHostModule(starter, internal.FasthttpHostModuleInstance)
 
 	return starter
 }

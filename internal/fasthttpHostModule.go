@@ -7,18 +7,18 @@ import (
 	"github.com/Bofry/host"
 )
 
-var _ host.HostModule = new(FasthttpHostModule)
+var _ host.HostModule = FasthttpHostModule{}
 
 type FasthttpHostModule struct{}
 
 // ConfigureLogger implements host.HostService
-func (s *FasthttpHostModule) ConfigureLogger(logflags int, w io.Writer) {
+func (FasthttpHostModule) ConfigureLogger(logflags int, w io.Writer) {
 	FasthttpHostLogger.SetFlags(logflags)
 	FasthttpHostLogger.SetOutput(w)
 }
 
 // Init implements host.HostService
-func (s *FasthttpHostModule) Init(h host.Host, app *host.AppModule) {
+func (FasthttpHostModule) Init(h host.Host, app *host.AppModule) {
 	if v, ok := h.(*FasthttpHost); ok {
 		v.preInit()
 		v.setTracerProvider(app.TracerProvider())
@@ -28,13 +28,13 @@ func (s *FasthttpHostModule) Init(h host.Host, app *host.AppModule) {
 }
 
 // InitComplete implements host.HostService
-func (s *FasthttpHostModule) InitComplete(h host.Host, app *host.AppModule) {
+func (FasthttpHostModule) InitComplete(h host.Host, app *host.AppModule) {
 	if v, ok := h.(*FasthttpHost); ok {
 		v.init()
 	}
 }
 
 // DescribeHostType implements host.HostService
-func (s *FasthttpHostModule) DescribeHostType() reflect.Type {
+func (FasthttpHostModule) DescribeHostType() reflect.Type {
 	return typeOfHost
 }

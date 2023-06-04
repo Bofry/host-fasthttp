@@ -28,7 +28,7 @@ var (
 	defaultSpanExtractor     = tracingutil.RequestCtxSpanExtractor(0)
 	unhandledRequestSpanName = "unknown path"
 
-	FasthttpHostServiceInstance = new(FasthttpHostModule)
+	FasthttpHostModuleInstance = FasthttpHostModule{}
 
 	FasthttpHostLogger *log.Logger = log.New(os.Stdout, LOGGER_PREFIX, log.LstdFlags|log.Lmsgprefix)
 )
