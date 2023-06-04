@@ -12,12 +12,12 @@ type RequestTracerService struct {
 	TracerProvider    *trace.SeverityTracerProvider
 	TextMapPropagator propagation.TextMapPropagator
 
-	tracers            map[string]*trace.SeverityTracer
-	tracersInitializer sync.Once
+	Enabled bool
 
 	unhandledRequestTracer *trace.SeverityTracer
 
-	Enabled bool
+	tracers            map[string]*trace.SeverityTracer
+	tracersInitializer sync.Once
 }
 
 func NewRequestTracerService() *RequestTracerService {

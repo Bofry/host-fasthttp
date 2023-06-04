@@ -59,10 +59,10 @@ func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
 		Span:      sp,
 	}
 
-	w.RequestHandleService.ProcessRequest(ctx, requestState, new(RecoverService))
+	w.RequestHandleService.ProcessRequest(ctx, requestState, new(Recover))
 }
 
-func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, state RequestState, recover *RecoverService) {
+func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, state RequestState, recover *Recover) {
 	recover.
 		Defer(func(err interface{}) {
 			if err != nil {
@@ -123,8 +123,8 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, state RequestSta
 
 func (w *RequestWorker) init() {
 	// register the default RequestHandleModule
-	requestHandleModule := NewRequestWorkerHandleModule(w)
-	w.RequestHandleService.Register(requestHandleModule)
+	stdRequestHandleModule := NewStdRequestHandleModule(w)
+	w.RequestHandleService.Register(stdRequestHandleModule)
 	// register the default RouteResolver
 	w.RouteResolveService.Register(RouteResolveModuleInstance)
 }

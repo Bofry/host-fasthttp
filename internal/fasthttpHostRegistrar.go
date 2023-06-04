@@ -10,34 +10,34 @@ func NewFasthttpHostRegistrar(host *FasthttpHost) *FasthttpHostRegistrar {
 	}
 }
 
-func (p *FasthttpHostRegistrar) RegisterRequestHandleModule(module RequestHandleModule) {
-	p.host.requestHandleService.Register(module)
+func (r *FasthttpHostRegistrar) RegisterRequestHandleModule(module RequestHandleModule) {
+	r.host.requestHandleService.Register(module)
 }
 
-func (p *FasthttpHostRegistrar) RegisterRouteResolveModule(module RouteResolveModule) {
-	p.host.routeResolveService.Register(module)
+func (r *FasthttpHostRegistrar) RegisterRouteResolveModule(module RouteResolveModule) {
+	r.host.routeResolveService.Register(module)
 }
 
-func (p *FasthttpHostRegistrar) EnableTracer(enabled bool) {
-	p.host.requestTracerService.Enabled = enabled
+func (r *FasthttpHostRegistrar) EnableTracer(enabled bool) {
+	r.host.requestTracerService.Enabled = enabled
 }
 
-func (p *FasthttpHostRegistrar) SetErrorHandler(handler ErrorHandler) {
-	p.host.requestWorker.ErrorHandler = handler
+func (r *FasthttpHostRegistrar) SetErrorHandler(handler ErrorHandler) {
+	r.host.requestWorker.ErrorHandler = handler
 }
 
-func (p *FasthttpHostRegistrar) SetRewriteHandler(handler RewriteHandler) {
-	p.host.requestWorker.RewriteHandler = handler
+func (r *FasthttpHostRegistrar) SetRewriteHandler(handler RewriteHandler) {
+	r.host.requestWorker.RewriteHandler = handler
 }
 
-func (p *FasthttpHostRegistrar) SetUnhandledRequestHandler(handler RequestHandler) {
-	p.host.requestWorker.UnhandledRequestHandler = handler
+func (r *FasthttpHostRegistrar) SetUnhandledRequestHandler(handler RequestHandler) {
+	r.host.requestWorker.UnhandledRequestHandler = handler
 }
 
-func (p *FasthttpHostRegistrar) SetRequestManager(requestManager interface{}) {
-	p.host.requestManager = requestManager
+func (r *FasthttpHostRegistrar) SetRequestManager(requestManager interface{}) {
+	r.host.requestManager = requestManager
 }
 
-func (p *FasthttpHostRegistrar) AddRoute(method string, path string, handler RequestHandler, handlerComponentID string) {
-	p.host.router.Add(method, path, handler, handlerComponentID)
+func (r *FasthttpHostRegistrar) AddRoute(method string, path string, handler RequestHandler, handlerComponentID string) {
+	r.host.router.Add(method, path, handler, handlerComponentID)
 }

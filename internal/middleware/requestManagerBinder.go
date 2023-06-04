@@ -29,28 +29,28 @@ func (b *RequestManagerBinder) Bind(field structproto.FieldInfo, rv reflect.Valu
 	}
 
 	// assign zero if rv is nil
-	rvRequestComponent := reflecting.AssignZero(rv)
-	binder := &RequestHandlerComponentBinder{
-		requestHandlerType: rvRequestComponent.Type().Name(),
+	rvRequestHandler := reflecting.AssignZero(rv)
+	binder := &RequestHandlerBinder{
+		requestHandlerType: rvRequestHandler.Type().Name(),
 		components: map[string]reflect.Value{
 			host.APP_CONFIG_FIELD:           b.app.Config(),
 			host.APP_SERVICE_PROVIDER_FIELD: b.app.ServiceProvider(),
 		},
 	}
-	err := b.bindRequestHandlerComponent(rvRequestComponent, binder)
+	err := b.bindRequestHandler(rvRequestHandler, binder)
 	if err != nil {
 		return err
 	}
 
 	// register RequestHandlers
-	return b.registerRoute(field.IDName(), field.Name(), rvRequestComponent)
+	return b.registerRoute(field.IDName(), field.Name(), rvRequestHandler)
 }
 
 func (b *RequestManagerBinder) Deinit(context *structproto.StructProtoContext) error {
 	return nil
 }
 
-func (b *RequestManagerBinder) bindRequestHandlerComponent(target reflect.Value, binder *RequestHandlerComponentBinder) error {
+func (b *RequestManagerBinder) bindRequestHandler(target reflect.Value, binder *RequestHandlerBinder) error {
 	prototype, err := structproto.Prototypify(target,
 		&structproto.StructProtoResolveOption{
 			TagResolver: tagresolver.NoneTagResolver,
@@ -62,13 +62,13 @@ func (b *RequestManagerBinder) bindRequestHandlerComponent(target reflect.Value,
 	return prototype.Bind(binder)
 }
 
-func (b *RequestManagerBinder) registerRoute(moduleID, url string, rvRequestComponent reflect.Value) error {
+func (b *RequestManagerBinder) registerRoute(moduleID, url string, rvRequestHandler reflect.Value) error {
 	// register RequestHandlers
-	count := rvRequestComponent.Type().NumMethod()
+	count := rvRequestHandler.Type().NumMethod()
 	for i := 0; i < count; i++ {
-		method := rvRequestComponent.Type().Method(i)
+		method := rvRequestHandler.Type().Method(i)
 
-		rvHandler := rvRequestComponent.Method(method.Index)
+		rvHandler := rvRequestHandler.Method(method.Index)
 		if isRequestHandler(rvHandler) {
 			handler := asRequestHandler(rvHandler)
 			if handler != nil {

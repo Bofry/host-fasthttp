@@ -9,18 +9,18 @@ import (
 	"github.com/Bofry/structproto/reflecting"
 )
 
-var _ structproto.StructBinder = new(RequestHandlerComponentBinder)
+var _ structproto.StructBinder = new(RequestHandlerBinder)
 
-type RequestHandlerComponentBinder struct {
+type RequestHandlerBinder struct {
 	requestHandlerType string
 	components         map[string]reflect.Value
 }
 
-func (b *RequestHandlerComponentBinder) Init(context *structproto.StructProtoContext) error {
+func (b *RequestHandlerBinder) Init(context *structproto.StructProtoContext) error {
 	return nil
 }
 
-func (b *RequestHandlerComponentBinder) Bind(field structproto.FieldInfo, target reflect.Value) error {
+func (b *RequestHandlerBinder) Bind(field structproto.FieldInfo, target reflect.Value) error {
 	if v, ok := b.components[field.Name()]; ok {
 		if !target.IsValid() {
 			return fmt.Errorf("specifiec argument 'target' is invalid. cannot bind '%s' to '%s'",
@@ -36,11 +36,11 @@ func (b *RequestHandlerComponentBinder) Bind(field structproto.FieldInfo, target
 	return nil
 }
 
-func (b *RequestHandlerComponentBinder) Deinit(context *structproto.StructProtoContext) error {
+func (b *RequestHandlerBinder) Deinit(context *structproto.StructProtoContext) error {
 	return b.preformInitMethod(context)
 }
 
-func (b *RequestHandlerComponentBinder) preformInitMethod(context *structproto.StructProtoContext) error {
+func (b *RequestHandlerBinder) preformInitMethod(context *structproto.StructProtoContext) error {
 	rv := context.Target()
 	if rv.CanAddr() {
 		rv = rv.Addr()

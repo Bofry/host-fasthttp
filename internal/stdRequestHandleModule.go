@@ -8,25 +8,25 @@ type StdRequestHandleModule struct {
 	worker *RequestWorker
 }
 
-func NewRequestWorkerHandleModule(worker *RequestWorker) *StdRequestHandleModule {
+func NewStdRequestHandleModule(worker *RequestWorker) *StdRequestHandleModule {
 	return &StdRequestHandleModule{
 		worker: worker,
 	}
 }
 
 // CanSetSuccessor implements RequestHandleModule
-func (r *StdRequestHandleModule) CanSetSuccessor() bool {
+func (*StdRequestHandleModule) CanSetSuccessor() bool {
 	return false
 }
 
 // SetSuccessor implements RequestHandleModule
-func (r *StdRequestHandleModule) SetSuccessor(successor RequestHandleModule) {
+func (*StdRequestHandleModule) SetSuccessor(successor RequestHandleModule) {
 	panic("unsupported operation")
 }
 
 // ProcessRequest implements RequestHandleModule
-func (r *StdRequestHandleModule) ProcessRequest(ctx *RequestCtx, state RequestState, recover *RecoverService) {
-	r.worker.internalProcessRequest(ctx, state, recover)
+func (m *StdRequestHandleModule) ProcessRequest(ctx *RequestCtx, state RequestState, recover *Recover) {
+	m.worker.internalProcessRequest(ctx, state, recover)
 }
 
 // OnInitComplete implements RequestHandleModule

@@ -28,13 +28,13 @@ func (m *RequestManagerMiddleware) Init(app *host.AppModule) {
 		app:       app,
 	}
 
-	err := m.performBindRequestManager(m.RequestManager, binder)
+	err := m.bindRequestManager(m.RequestManager, binder)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (m *RequestManagerMiddleware) performBindRequestManager(target interface{}, binder *RequestManagerBinder) error {
+func (m *RequestManagerMiddleware) bindRequestManager(target interface{}, binder *RequestManagerBinder) error {
 	prototype, err := structproto.Prototypify(target,
 		&structproto.StructProtoResolveOption{
 			TagName:     TAG_URL,

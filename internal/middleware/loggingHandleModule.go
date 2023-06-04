@@ -18,25 +18,25 @@ type LoggingHandleModule struct {
 }
 
 // CanSetSuccessor implements RequestHandleModule
-func (h *LoggingHandleModule) CanSetSuccessor() bool {
+func (*LoggingHandleModule) CanSetSuccessor() bool {
 	return true
 }
 
 // SetSuccessor implements RequestHandleModule
-func (h *LoggingHandleModule) SetSuccessor(successor RequestHandleModule) {
-	h.successor = successor
+func (m *LoggingHandleModule) SetSuccessor(successor RequestHandleModule) {
+	m.successor = successor
 }
 
 // ProcessRequest implements RequestHandleModule
-func (h *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, state RequestState, recover *RecoverService) {
-	if h.successor != nil {
+func (m *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, state RequestState, recover *Recover) {
+	if m.successor != nil {
 		evidence := EventEvidence{
 			traceID:   state.Span.TraceID(),
 			spanID:    state.Span.SpanID(),
 			routePath: state.RoutePath,
 		}
 
-		eventLog := h.loggingService.CreateEventLog(evidence)
+		eventLog := m.loggingService.CreateEventLog(evidence)
 		eventLog.WriteRequest(ctx)
 
 		recover.
@@ -64,7 +64,7 @@ func (h *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, state RequestState
 				}
 			}).
 			Do(func(Finalizer) {
-				h.successor.ProcessRequest(ctx, state, recover)
+				m.successor.ProcessRequest(ctx, state, recover)
 			})
 	}
 }

@@ -25,9 +25,9 @@ type FasthttpHost struct {
 	requestWorker  *RequestWorker
 	requestManager interface{}
 
-	requestHandleService *RequestHandleService
-	routeResolveService  *RouteResolveService
 	router               Router
+	routeResolveService  *RouteResolveService
+	requestHandleService *RequestHandleService
 	requestTracerService *RequestTracerService
 
 	wg          sync.WaitGroup
