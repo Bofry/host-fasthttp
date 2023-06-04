@@ -1,6 +1,6 @@
 package internal
 
-type RouteRequest struct {
+type RouteComponent struct {
 	RequestHandler     RequestHandler
 	RequestComponentID string
 }

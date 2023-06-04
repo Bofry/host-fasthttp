@@ -1,13 +1,13 @@
 package internal
 
-type Router map[RoutePath]RouteRequest
+type Router map[RoutePath]RouteComponent
 
 func (r Router) Add(method string, path string, handler RequestHandler, requestComponentID string) {
 	key := RoutePath{
 		Method: method,
 		Path:   path,
 	}
-	r[key] = RouteRequest{
+	r[key] = RouteComponent{
 		RequestHandler:     handler,
 		RequestComponentID: requestComponentID,
 	}
