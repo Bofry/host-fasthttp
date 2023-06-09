@@ -188,6 +188,3 @@ func (h *FasthttpHost) configListenAddress() {
 	}
 	h.ListenAddress = net.JoinHostPort(host, port)
 }
-
-func (h *FasthttpHost) onInitComplete() {
-}
