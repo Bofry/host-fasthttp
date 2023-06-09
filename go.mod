@@ -6,7 +6,7 @@ require (
 	github.com/Bofry/config v0.2.1-0.20230123080007-f27e105e05e2
 	github.com/Bofry/host v0.1.2-0.20230520021748-4f52588e94d6
 	github.com/Bofry/structproto v0.2.0-alpha.20221227043020.0.20230519110520-05192d88fe05
-	github.com/Bofry/trace v0.0.0-20230602075229-b7519a568839
+	github.com/Bofry/trace v0.0.0-20230609150550-9f408e99bedf
 	github.com/valyala/fasthttp v1.35.0
 )
 

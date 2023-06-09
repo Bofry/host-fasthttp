@@ -16,17 +16,12 @@ type RequestCtxSpanExtractor int
 
 // Extract implements trace.SpanExtractor
 func (RequestCtxSpanExtractor) Extract(ctx context.Context) *trace.SeveritySpan {
-	if v, ok := ctx.(*http.RequestCtx); ok {
-		return extractSpan(v)
+	if rx, ok := ctx.(*http.RequestCtx); ok {
+		reply := requestutil.ExtractSpan(rx)
+		span, ok := reply.(*trace.SeveritySpan)
+		if ok {
+			return span
+		}
 	}
-	return nil
-}
-
-func extractSpan(ctx *http.RequestCtx) *trace.SeveritySpan {
-	obj := requestutil.ExtractSpan(ctx)
-	v, ok := obj.(*trace.SeveritySpan)
-	if ok {
-		return v
-	}
-	return nil
+	return trace.SpanFromContext(ctx)
 }

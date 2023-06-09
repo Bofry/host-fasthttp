@@ -70,6 +70,10 @@ github.com/Bofry/trace v0.0.0-20230601143416-68cf57b2f3be h1:UXi5v8/bIp9pJfNqwoC
 github.com/Bofry/trace v0.0.0-20230601143416-68cf57b2f3be/go.mod h1:GAiwGnBex/FjAmqB9ydLPvQth1E6ljJ10hSgS78U+8A=
 github.com/Bofry/trace v0.0.0-20230602075229-b7519a568839 h1:ZnUU+pWZ0D0Oua1j3ULRcBhYj6jS1YRjGgxH0yHZKJs=
 github.com/Bofry/trace v0.0.0-20230602075229-b7519a568839/go.mod h1:GAiwGnBex/FjAmqB9ydLPvQth1E6ljJ10hSgS78U+8A=
+github.com/Bofry/trace v0.0.0-20230609143114-990056465f15 h1:tFWIegruag4oedS9WQUbVV7tCUcf6pYYsi86Z76PQHw=
+github.com/Bofry/trace v0.0.0-20230609143114-990056465f15/go.mod h1:GAiwGnBex/FjAmqB9ydLPvQth1E6ljJ10hSgS78U+8A=
+github.com/Bofry/trace v0.0.0-20230609150550-9f408e99bedf h1:EzBLsKVbJLoZns2HpaibmHwXUsaQeGZvug7ZkPo5TqM=
+github.com/Bofry/trace v0.0.0-20230609150550-9f408e99bedf/go.mod h1:GAiwGnBex/FjAmqB9ydLPvQth1E6ljJ10hSgS78U+8A=
 github.com/Bofry/types v0.1.0 h1:lEM+LcPWlC1ByerJlp0cZ4tCCosR9lemVDvu9kATV1Y=
 github.com/Bofry/types v0.1.0/go.mod h1:O0I2TpZ3YfKDgTnJO5zeaX9LO7vtdhGnwbz/oP4cKUw=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
