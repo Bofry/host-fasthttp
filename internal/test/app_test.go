@@ -31,21 +31,34 @@ type RequestManager struct {
 	*FasthttpProxyRequest `url:"/Proxy/fasthttp"`
 }
 
+func TestMain(m *testing.M) {
+	/* like
+	 * $ export REDIS_HOST=kubernate-redis:26379
+	 * $ export REDIS_PASSWORD=1234
+	 * $ export REDIS_POOL_SIZE=128
+	 */
+	os.Setenv("REDIS_HOST", "kubernate-redis:26379")
+	os.Setenv("REDIS_PASSWORD", "1234")
+	os.Setenv("REDIS_POOL_SIZE", "128")
+
+	m.Run()
+}
+
 func TestApp_Sanity(t *testing.T) {
 	/* like
-	$ export REDIS_HOST=kubernate-redis:26379
-	$ export REDIS_PASSWORD=1234
-	$ export REDIS_POOL_SIZE=128
-	*/
-	initializeEnvironment()
-	/* like
-	$ go run app.go --address ":10094" --compress true --hostname "DemoService"
-	*/
-	initializeArgs()
+	 * $ go run app.go --address ":10094" --compress true --hostname "DemoService"
+	 */
+	os.Args = []string{"example",
+		"--address", ":10094",
+		"--compress", "true",
+		"--hostname", "DemoService"}
 
-	var errorBuffer bytes.Buffer
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
-	var errorCount = 0
+	var (
+		errorBuffer bytes.Buffer
+		errorCount  = 0
+	)
 
 	app := App{}
 	starter := fasthttp.Startup(&app).
@@ -406,19 +419,4 @@ func TestApp_Sanity(t *testing.T) {
 			t.Errorf("assert 'RedisClient.PoolSize':: expected '%v', got '%v'", 128, redisClient.PoolSize)
 		}
 	}
-}
-
-func initializeEnvironment() {
-	os.Setenv("REDIS_HOST", "kubernate-redis:26379")
-	os.Setenv("REDIS_PASSWORD", "1234")
-	os.Setenv("REDIS_POOL_SIZE", "128")
-}
-
-func initializeArgs() {
-	os.Args = []string{"example",
-		"--address", ":10094",
-		"--compress", "true",
-		"--hostname", "DemoService"}
-
-	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 }
