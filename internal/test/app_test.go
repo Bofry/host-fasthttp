@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-func TestApp_Sanity(t *testing.T) {
+func TestStartup(t *testing.T) {
 	/* like
 	 * $ go run app.go --address ":10094" --compress true --hostname "DemoService"
 	 */
