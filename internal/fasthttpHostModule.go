@@ -20,7 +20,7 @@ func (FasthttpHostModule) ConfigureLogger(logflags int, w io.Writer) {
 // Init implements host.HostService
 func (FasthttpHostModule) Init(h host.Host, app *host.AppModule) {
 	if v, ok := h.(*FasthttpHost); ok {
-		v.preInit()
+		v.alloc()
 		v.setTracerProvider(app.TracerProvider())
 		v.setTextMapPropagator(app.TextMapPropagator())
 		v.setLogger(app.Logger())

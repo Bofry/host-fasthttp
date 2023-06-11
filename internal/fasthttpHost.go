@@ -102,7 +102,7 @@ func (h *FasthttpHost) Logger() *log.Logger {
 	return h.logger
 }
 
-func (h *FasthttpHost) preInit() {
+func (h *FasthttpHost) alloc() {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 
