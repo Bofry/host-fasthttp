@@ -57,6 +57,301 @@ func TestStartup(t *testing.T) {
 
 	var (
 		errorBuffer bytes.Buffer
+	)
+
+	app := App{}
+	starter := fasthttp.Startup(&app).
+		Middlewares(
+			fasthttp.UseRequestManager(&RequestManager{}),
+			fasthttp.UseXHttpMethodHeader(),
+			fasthttp.UseErrorHandler(func(ctx *fasthttp.RequestCtx, err interface{}) {
+				if fail, ok := err.(*failure.Failure); ok {
+					content, _ := json.Marshal(fail)
+					if content != nil {
+						response.Failure(ctx, "application/json", content, fasthttp.StatusBadRequest)
+					}
+				}
+				if v, ok := err.(error); ok && v.Error() == "FAIL" {
+					response.Failure(ctx, string(ctx.Response.Header.ContentType()), []byte("FAIL"), 400)
+				}
+				fmt.Fprintf(&errorBuffer, "err: %+v", err)
+			}),
+			fasthttp.UseTracing(false),
+			fasthttp.UseRewriter(func(ctx *fasthttp.RequestCtx, path *fasthttp.RoutePath) *fasthttp.RoutePath {
+				if strings.HasPrefix(path.Path, "/Echo/") {
+					ctx.Request.URI().QueryArgs().Add("input", path.Path[6:])
+					path.Path = "/Echo"
+				}
+				return path
+			}),
+			fasthttp.UseUnhandledRequestHandler(func(ctx *fasthttp.RequestCtx) {
+				ctx.SetStatusCode(fasthttp.StatusNotFound)
+			}),
+		).
+		ConfigureConfiguration(func(service *config.ConfigurationService) {
+			service.
+				LoadEnvironmentVariables("").
+				LoadYamlFile("config.yaml").
+				LoadCommandArguments()
+		})
+
+	runCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := starter.Start(runCtx); err != nil {
+		t.Error(err)
+	}
+
+	client := &http.Client{}
+	{
+		req, err := http.NewRequest("POST", "http://127.0.0.1:10094", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Set("X-Http-Method", "PING")
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "Pong" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "Pong", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("PING", "http://127.0.0.1:10094", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Set("If-None-Match", `W/"wyzzy"`)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "Pong" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "Pong", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("SEND", "http://127.0.0.1:10094/Echo?input=Can%20you%20hear%20me", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Set("If-None-Match", `W/"wyzzy"`)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "ECHO: Can you hear me" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Can you hear me", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("SEND", "http://127.0.0.1:10094/Echo/Hello", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Set("If-None-Match", `W/"wyzzy"`)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "ECHO: Hello" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("PEEK", "http://127.0.0.1:10094/Setting", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Set("If-None-Match", `W/"wyzzy"`)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		expectedBody := strings.Join([]string{
+			"Redis:",
+			"    Host: kubernate-redis:26379",
+			"    Password: 1234",
+			"    DB: 3",
+			"    PoolSize: 128",
+			"From: SettingResource"}, "\n")
+		if string(body) != expectedBody {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", expectedBody, string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("GET", "http://127.0.0.1:10094/unknown", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Add("If-None-Match", `W/"wyzzy"`)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 404 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 404, resp.StatusCode)
+		}
+	}
+	{
+		req, err := http.NewRequest("OCCUR", "http://127.0.0.1:10094/Accident", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Add("If-None-Match", `W/"wyzzy"`)
+		_, _ = client.Do(req)
+		expectedErrorString := "err: an error occurred"
+		if errorBuffer.String() != expectedErrorString {
+			t.Errorf("assert 'errorBuffer':: expected '%v', got '%v'", expectedErrorString, errorBuffer.String())
+		}
+		errorBuffer.Reset()
+	}
+	{
+		req, err := http.NewRequest("FAIL", "http://127.0.0.1:10094/Accident", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Add("If-None-Match", `W/"wyzzy"`)
+		_, _ = client.Do(req)
+		expectedErrorString := "err: FAIL"
+		if errorBuffer.String() != expectedErrorString {
+			t.Errorf("assert 'errorBuffer':: expected '%v', got '%v'", expectedErrorString, errorBuffer.String())
+		}
+		errorBuffer.Reset()
+	}
+	{
+		req, err := http.NewRequest("FAIL2", "http://127.0.0.1:10094/Accident", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Add("If-None-Match", `W/"wyzzy"`)
+		_, _ = client.Do(req)
+		expectedErrorString := "err: UNKNOWN_ERROR - an error occurred"
+		if errorBuffer.String() != expectedErrorString {
+			t.Errorf("assert 'errorBuffer':: expected '%v', got '%v'", expectedErrorString, errorBuffer.String())
+		}
+		errorBuffer.Reset()
+	}
+	{
+		req, err := http.NewRequest("PING", "http://127.0.0.1:10094/Json", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		_, _ = client.Do(req)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != `{"message":"OK"}` {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("FAIL", "http://127.0.0.1:10094/Json", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		_, _ = client.Do(req)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 400 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != `{"message":"UNKNOWN_ERROR"}` {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("PING", "http://127.0.0.1:10094/Text", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		_, _ = client.Do(req)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "OK" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("FAIL", "http://127.0.0.1:10094/Text", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		_, _ = client.Do(req)
+		resp, err := client.Do(req)
+		if resp.StatusCode != 400 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "UNKNOWN_ERROR" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "UNKNOWN_ERROR", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("PING", "http://127.0.0.1:10094/Tracing", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		// just test tracing, without check response
+		client.Do(req)
+	}
+	{
+		req, err := http.NewRequest("POST", "http://127.0.0.1:10094/Proxy/http", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "OK" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("POST", "http://127.0.0.1:10094/Proxy/fasthttp", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "OK" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
+	}
+
+	select {
+	case <-runCtx.Done():
+		if err := starter.Stop(context.Background()); err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+func TestStartup_UseTracing(t *testing.T) {
+	/* like
+	 * $ go run app.go --address ":10094" --compress true --hostname "DemoService"
+	 */
+	os.Args = []string{"example",
+		"--address", ":10094",
+		"--compress", "true",
+		"--hostname", "DemoService"}
+
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+
+	var (
+		errorBuffer bytes.Buffer
 		errorCount  = 0
 	)
 
@@ -78,7 +373,6 @@ func TestStartup(t *testing.T) {
 				}
 				fmt.Fprintf(&errorBuffer, "err: %+v", err)
 			}),
-			// fasthttp.UseLogging(&LoggingService{}),
 			fasthttp.UseTracing(true),
 			fasthttp.UseRewriter(func(ctx *fasthttp.RequestCtx, path *fasthttp.RoutePath) *fasthttp.RoutePath {
 				if strings.HasPrefix(path.Path, "/Echo/") {
@@ -98,7 +392,7 @@ func TestStartup(t *testing.T) {
 				LoadCommandArguments()
 		})
 
-	runCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	runCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := starter.Start(runCtx); err != nil {
 		t.Error(err)
@@ -417,6 +711,95 @@ func TestStartup(t *testing.T) {
 		}
 		if redisClient.PoolSize != 128 {
 			t.Errorf("assert 'RedisClient.PoolSize':: expected '%v', got '%v'", 128, redisClient.PoolSize)
+		}
+	}
+}
+
+func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
+	/* like
+	 * $ go run app.go --address ":10094" --compress true --hostname "DemoService"
+	 */
+	os.Args = []string{"example",
+		"--address", ":10094",
+		"--compress", "true",
+		"--hostname", "DemoService"}
+
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+
+	var (
+		errorBuffer bytes.Buffer
+	)
+
+	app := App{}
+	starter := fasthttp.Startup(&app).
+		Middlewares(
+			fasthttp.UseRequestManager(&RequestManager{}),
+			fasthttp.UseXHttpMethodHeader(),
+			fasthttp.UseErrorHandler(func(ctx *fasthttp.RequestCtx, err interface{}) {
+				if fail, ok := err.(*failure.Failure); ok {
+					content, _ := json.Marshal(fail)
+					if content != nil {
+						response.Failure(ctx, "application/json", content, fasthttp.StatusBadRequest)
+					}
+				}
+				if v, ok := err.(error); ok && v.Error() == "FAIL" {
+					response.Failure(ctx, string(ctx.Response.Header.ContentType()), []byte("FAIL"), 400)
+				}
+				fmt.Fprintf(&errorBuffer, "err: %+v", err)
+			}),
+			fasthttp.UseLogging(&LoggingService{}),
+			fasthttp.UseTracing(true),
+			fasthttp.UseUnhandledRequestHandler(func(ctx *fasthttp.RequestCtx) {
+				ctx.SetStatusCode(fasthttp.StatusNotFound)
+			}),
+		).
+		ConfigureConfiguration(func(service *config.ConfigurationService) {
+			service.
+				LoadEnvironmentVariables("").
+				LoadYamlFile("config.yaml").
+				LoadCommandArguments()
+		})
+
+	runCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := starter.Start(runCtx); err != nil {
+		t.Error(err)
+	}
+
+	client := &http.Client{}
+	{
+		req, err := http.NewRequest("POST", "http://127.0.0.1:10094", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Set("X-Http-Method", "PING")
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if string(body) != "Pong" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "Pong", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("OCCUR", "http://127.0.0.1:10094/Accident", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Add("If-None-Match", `W/"wyzzy"`)
+		_, _ = client.Do(req)
+		expectedErrorString := "err: an error occurred"
+		if errorBuffer.String() != expectedErrorString {
+			t.Errorf("assert 'errorBuffer':: expected '%v', got '%v'", expectedErrorString, errorBuffer.String())
+		}
+		errorBuffer.Reset()
+	}
+
+	select {
+	case <-runCtx.Done():
+		if err := starter.Stop(context.Background()); err != nil {
+			t.Error(err)
 		}
 	}
 }
