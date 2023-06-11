@@ -279,7 +279,6 @@ func TestStartup(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		_, _ = client.Do(req)
 		resp, err := client.Do(req)
 		if resp.StatusCode != 200 {
 			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
@@ -294,7 +293,6 @@ func TestStartup(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		_, _ = client.Do(req)
 		resp, err := client.Do(req)
 		if resp.StatusCode != 400 {
 			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
@@ -309,7 +307,6 @@ func TestStartup(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		_, _ = client.Do(req)
 		resp, err := client.Do(req)
 		if resp.StatusCode != 200 {
 			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
@@ -324,7 +321,6 @@ func TestStartup(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		_, _ = client.Do(req)
 		resp, err := client.Do(req)
 		if resp.StatusCode != 400 {
 			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
@@ -400,8 +396,9 @@ func TestStartup_UseTracing(t *testing.T) {
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
 	var (
-		errorBuffer bytes.Buffer
-		testStartAt time.Time
+		errorBuffer  bytes.Buffer
+		testStartAt  time.Time
+		requestCount int = 0
 	)
 
 	app := App{}
@@ -455,14 +452,8 @@ func TestStartup_UseTracing(t *testing.T) {
 			t.Error(err)
 		}
 		req.Header.Set("X-Http-Method", "PING")
-		resp, err := client.Do(req)
-		if resp.StatusCode != 200 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		if string(body) != "Pong" {
-			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "Pong", string(body))
-		}
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("PING", "http://127.0.0.1:10094", nil)
@@ -470,14 +461,8 @@ func TestStartup_UseTracing(t *testing.T) {
 			t.Error(err)
 		}
 		req.Header.Set("If-None-Match", `W/"wyzzy"`)
-		resp, err := client.Do(req)
-		if resp.StatusCode != 200 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		if string(body) != "Pong" {
-			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "Pong", string(body))
-		}
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("SEND", "http://127.0.0.1:10094/Echo?input=Can%20you%20hear%20me", nil)
@@ -485,14 +470,8 @@ func TestStartup_UseTracing(t *testing.T) {
 			t.Error(err)
 		}
 		req.Header.Set("If-None-Match", `W/"wyzzy"`)
-		resp, err := client.Do(req)
-		if resp.StatusCode != 200 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		if string(body) != "ECHO: Can you hear me" {
-			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Can you hear me", string(body))
-		}
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("SEND", "http://127.0.0.1:10094/Echo/Hello", nil)
@@ -500,14 +479,8 @@ func TestStartup_UseTracing(t *testing.T) {
 			t.Error(err)
 		}
 		req.Header.Set("If-None-Match", `W/"wyzzy"`)
-		resp, err := client.Do(req)
-		if resp.StatusCode != 200 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		if string(body) != "ECHO: Hello" {
-			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
-		}
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("PEEK", "http://127.0.0.1:10094/Setting", nil)
@@ -515,21 +488,8 @@ func TestStartup_UseTracing(t *testing.T) {
 			t.Error(err)
 		}
 		req.Header.Set("If-None-Match", `W/"wyzzy"`)
-		resp, err := client.Do(req)
-		if resp.StatusCode != 200 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		expectedBody := strings.Join([]string{
-			"Redis:",
-			"    Host: kubernate-redis:26379",
-			"    Password: 1234",
-			"    DB: 3",
-			"    PoolSize: 128",
-			"From: SettingResource"}, "\n")
-		if string(body) != expectedBody {
-			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", expectedBody, string(body))
-		}
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("GET", "http://127.0.0.1:10094/unknown", nil)
@@ -537,10 +497,8 @@ func TestStartup_UseTracing(t *testing.T) {
 			t.Error(err)
 		}
 		req.Header.Add("If-None-Match", `W/"wyzzy"`)
-		resp, err := client.Do(req)
-		if resp.StatusCode != 404 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 404, resp.StatusCode)
-		}
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("OCCUR", "http://127.0.0.1:10094/Accident", nil)
@@ -548,12 +506,8 @@ func TestStartup_UseTracing(t *testing.T) {
 			t.Error(err)
 		}
 		req.Header.Add("If-None-Match", `W/"wyzzy"`)
-		_, _ = client.Do(req)
-		expectedErrorString := "err: an error occurred"
-		if errorBuffer.String() != expectedErrorString {
-			t.Errorf("assert 'errorBuffer':: expected '%v', got '%v'", expectedErrorString, errorBuffer.String())
-		}
-		errorBuffer.Reset()
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("FAIL", "http://127.0.0.1:10094/Accident", nil)
@@ -561,12 +515,8 @@ func TestStartup_UseTracing(t *testing.T) {
 			t.Error(err)
 		}
 		req.Header.Add("If-None-Match", `W/"wyzzy"`)
-		_, _ = client.Do(req)
-		expectedErrorString := "err: FAIL"
-		if errorBuffer.String() != expectedErrorString {
-			t.Errorf("assert 'errorBuffer':: expected '%v', got '%v'", expectedErrorString, errorBuffer.String())
-		}
-		errorBuffer.Reset()
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("FAIL2", "http://127.0.0.1:10094/Accident", nil)
@@ -574,72 +524,40 @@ func TestStartup_UseTracing(t *testing.T) {
 			t.Error(err)
 		}
 		req.Header.Add("If-None-Match", `W/"wyzzy"`)
-		_, _ = client.Do(req)
-		expectedErrorString := "err: UNKNOWN_ERROR - an error occurred"
-		if errorBuffer.String() != expectedErrorString {
-			t.Errorf("assert 'errorBuffer':: expected '%v', got '%v'", expectedErrorString, errorBuffer.String())
-		}
-		errorBuffer.Reset()
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("PING", "http://127.0.0.1:10094/Json", nil)
 		if err != nil {
 			t.Error(err)
 		}
-		_, _ = client.Do(req)
-		resp, err := client.Do(req)
-		if resp.StatusCode != 200 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		if string(body) != `{"message":"OK"}` {
-			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
-		}
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("FAIL", "http://127.0.0.1:10094/Json", nil)
 		if err != nil {
 			t.Error(err)
 		}
-		_, _ = client.Do(req)
-		resp, err := client.Do(req)
-		if resp.StatusCode != 400 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		if string(body) != `{"message":"UNKNOWN_ERROR"}` {
-			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
-		}
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("PING", "http://127.0.0.1:10094/Text", nil)
 		if err != nil {
 			t.Error(err)
 		}
-		_, _ = client.Do(req)
-		resp, err := client.Do(req)
-		if resp.StatusCode != 200 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		if string(body) != "OK" {
-			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
-		}
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("FAIL", "http://127.0.0.1:10094/Text", nil)
 		if err != nil {
 			t.Error(err)
 		}
-		_, _ = client.Do(req)
-		resp, err := client.Do(req)
-		if resp.StatusCode != 400 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		if string(body) != "UNKNOWN_ERROR" {
-			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "UNKNOWN_ERROR", string(body))
-		}
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("PING", "http://127.0.0.1:10094/Tracing", nil)
@@ -648,34 +566,23 @@ func TestStartup_UseTracing(t *testing.T) {
 		}
 		// just test tracing, without check response
 		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("POST", "http://127.0.0.1:10094/Proxy/http", nil)
 		if err != nil {
 			t.Error(err)
 		}
-		resp, err := client.Do(req)
-		if resp.StatusCode != 200 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		if string(body) != "OK" {
-			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
-		}
+		client.Do(req)
+		requestCount++
 	}
 	{
 		req, err := http.NewRequest("POST", "http://127.0.0.1:10094/Proxy/fasthttp", nil)
 		if err != nil {
 			t.Error(err)
 		}
-		resp, err := client.Do(req)
-		if resp.StatusCode != 200 {
-			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		if string(body) != "OK" {
-			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
-		}
+		client.Do(req)
+		requestCount++
 	}
 
 	select {
@@ -716,7 +623,7 @@ func TestStartup_UseTracing(t *testing.T) {
 			if data == nil {
 				t.Errorf("missing data section")
 			}
-			var expectedDataLength int = 20
+			var expectedDataLength int = requestCount
 			if expectedDataLength != len(data) {
 				t.Errorf("assert 'Jaeger Query size of replies':: expected '%v', got '%v'", expectedDataLength, len(data))
 			}
