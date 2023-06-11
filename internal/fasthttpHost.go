@@ -60,6 +60,7 @@ func (h *FasthttpHost) Start(ctx context.Context) {
 	h.running = true
 
 	s := h.Server
+	s.Logger = h.logger
 
 	h.requestWorker.start(ctx)
 
@@ -130,7 +131,9 @@ func (h *FasthttpHost) init() {
 	}()
 
 	if h.Server == nil {
-		h.Server = &Server{}
+		h.Server = &Server{
+			Logger: FasthttpHostLogger,
+		}
 	}
 
 	h.requestTracerService.init(h.requestManager)
