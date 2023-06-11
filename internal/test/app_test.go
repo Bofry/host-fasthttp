@@ -593,7 +593,7 @@ func TestStartup_UseTracing(t *testing.T) {
 
 		testEndAt := time.Now()
 		var queryUrl = fmt.Sprintf(
-			"%s?end=%d&limit=21&lookback=1h&&service=fasthttp-trace-demo&start=%d",
+			"%s?end=%d&limit=50&lookback=1h&&service=fasthttp-trace-demo&start=%d",
 			app.Config.JaegerQueryUrl,
 			testEndAt.UnixMicro(),
 			testStartAt.UnixMicro())
