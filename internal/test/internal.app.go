@@ -50,6 +50,7 @@ type (
 
 		// jaeger
 		JaegerTraceUrl string `yaml:"jaegerTraceUrl"`
+		JaegerQueryUrl string `yaml:"jaegerQueryUrl"`
 	}
 
 	ServiceProvider struct {

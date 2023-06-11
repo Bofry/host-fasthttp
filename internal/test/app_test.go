@@ -72,20 +72,19 @@ func TestMain(m *testing.M) {
 			}
 		}
 	}
+	m.Run()
+}
 
+func TestStartup(t *testing.T) {
 	/* like
 	 * $ export REDIS_HOST=kubernate-redis:26379
 	 * $ export REDIS_PASSWORD=1234
 	 * $ export REDIS_POOL_SIZE=128
 	 */
-	os.Setenv("REDIS_HOST", "kubernate-redis:26379")
-	os.Setenv("REDIS_PASSWORD", "1234")
-	os.Setenv("REDIS_POOL_SIZE", "128")
+	t.Setenv("REDIS_HOST", "kubernate-redis:26379")
+	t.Setenv("REDIS_PASSWORD", "1234")
+	t.Setenv("REDIS_POOL_SIZE", "128")
 
-	m.Run()
-}
-
-func TestStartup(t *testing.T) {
 	/* like
 	 * $ go run app.go --address ":10094" --compress true --hostname "DemoService"
 	 */
@@ -382,6 +381,15 @@ func TestStartup(t *testing.T) {
 
 func TestStartup_UseTracing(t *testing.T) {
 	/* like
+	 * $ export REDIS_HOST=kubernate-redis:26379
+	 * $ export REDIS_PASSWORD=1234
+	 * $ export REDIS_POOL_SIZE=128
+	 */
+	t.Setenv("REDIS_HOST", "kubernate-redis:26379")
+	t.Setenv("REDIS_PASSWORD", "1234")
+	t.Setenv("REDIS_POOL_SIZE", "128")
+
+	/* like
 	 * $ go run app.go --address ":10094" --compress true --hostname "DemoService"
 	 */
 	os.Args = []string{"example",
@@ -393,7 +401,7 @@ func TestStartup_UseTracing(t *testing.T) {
 
 	var (
 		errorBuffer bytes.Buffer
-		errorCount  = 0
+		testStartAt time.Time
 	)
 
 	app := App{}
@@ -402,7 +410,6 @@ func TestStartup_UseTracing(t *testing.T) {
 			fasthttp.UseRequestManager(&RequestManager{}),
 			fasthttp.UseXHttpMethodHeader(),
 			fasthttp.UseErrorHandler(func(ctx *fasthttp.RequestCtx, err interface{}) {
-				errorCount++
 				if fail, ok := err.(*failure.Failure); ok {
 					content, _ := json.Marshal(fail)
 					if content != nil {
@@ -438,6 +445,8 @@ func TestStartup_UseTracing(t *testing.T) {
 	if err := starter.Start(runCtx); err != nil {
 		t.Error(err)
 	}
+
+	testStartAt = time.Now()
 
 	client := &http.Client{}
 	{
@@ -674,89 +683,57 @@ func TestStartup_UseTracing(t *testing.T) {
 		if err := starter.Stop(context.Background()); err != nil {
 			t.Error(err)
 		}
-	}
 
-	var expectedErrorCount = 3
-	if errorCount != expectedErrorCount {
-		t.Errorf("assert 'errorCount':: expected '%v', got '%v'", expectedErrorCount, errorCount)
-	}
+		testEndAt := time.Now()
+		var queryUrl = fmt.Sprintf(
+			"%s?end=%d&limit=21&lookback=1h&&service=fasthttp-trace-demo&start=%d",
+			app.Config.JaegerQueryUrl,
+			testEndAt.UnixMicro(),
+			testStartAt.UnixMicro())
+		req, err := http.NewRequest("GET", queryUrl, nil)
+		if err != nil {
+			t.Error(err)
+		}
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert query 'Jeager Query Url StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			t.Error(err)
+		}
+		// t.Logf("%v", string(body))
+		// parse content
+		{
+			var reply map[string]interface{}
+			dec := json.NewDecoder(bytes.NewBuffer(body))
+			dec.UseNumber()
+			if err := dec.Decode(&reply); err != nil {
+				t.Error(err)
+			}
 
-	// assert app.Host
-	{
-		if app.Host == nil {
-			t.Error("assert 'MockApp.Host':: should not be nil")
-		}
-		host := app.Host
-		var expectedListenAddress = ":10094"
-		if host.ListenAddress != expectedListenAddress {
-			t.Errorf("assert 'Host.ListenAddress':: expected '%v', got '%v'", expectedListenAddress, host.ListenAddress)
-		}
-		var expectedEnableCompress = true
-		if host.EnableCompress != true {
-			t.Errorf("assert 'Host.EnableCompress':: expected '%v', got '%v'", expectedEnableCompress, host.EnableCompress)
-		}
-		var expectedServerName = "DemoService"
-		if host.Server.Name != expectedServerName {
-			t.Errorf("assert 'Host.EnableCompress':: expected '%v', got '%v'", expectedServerName, host.Server.Name)
-		}
-	}
-	// assert app.Config
-	{
-		if app.Config == nil {
-			t.Error("assert 'MockApp.Config':: should not be nil")
-		}
-		conf := app.Config
-		if conf.ListenAddress != ":10094" {
-			t.Errorf("assert 'Config.ListenAddress':: expected '%v', got '%v'", ":10094", conf.ListenAddress)
-		}
-		if conf.EnableCompress != true {
-			t.Errorf("assert 'Config.EnableCompress':: expected '%v', got '%v'", true, conf.EnableCompress)
-		}
-		if conf.ServerName != "DemoService" {
-			t.Errorf("assert 'Config.ServerName':: expected '%v', got '%v'", "DemoService", conf.ServerName)
-		}
-		if conf.RedisHost != "kubernate-redis:26379" {
-			t.Errorf("assert 'Config.RedisHost':: expected '%v', got '%v'", "kubernate-redis:26379", conf.RedisHost)
-		}
-		if conf.RedisPassword != "1234" {
-			t.Errorf("assert 'Config.RedisPassword':: expected '%v', got '%v'", "1234", conf.RedisPassword)
-		}
-		if conf.RedisDB != 3 {
-			t.Errorf("assert 'Config.RedisDB':: expected '%v', got '%v'", 3, conf.RedisDB)
-		}
-		if conf.RedisPoolSize != 128 {
-			t.Errorf("assert 'Config.RedisPoolSize':: expected '%v', got '%v'", 128, conf.RedisPoolSize)
-		}
-		if conf.Workspace != "demo_test" {
-			t.Errorf("assert 'Config.Workspace':: expected '%v', got '%v'", "demo_test", conf.Workspace)
-		}
-	}
-	// assert app.ServiceProvider
-	{
-		if app.ServiceProvider == nil {
-			t.Error("assert 'MockApp.ServiceProvider':: should not be nil")
-		}
-		provider := app.ServiceProvider
-		if provider.CacheClient == nil {
-			t.Error("assert 'ServiceProvider.RedisClient':: should not be nil")
-		}
-		redisClient := provider.CacheClient
-		if redisClient.Host != "kubernate-redis:26379" {
-			t.Errorf("assert 'RedisClient.Host':: expected '%v', got '%v'", "kubernate-redis:26379", redisClient.Host)
-		}
-		if redisClient.Password != "1234" {
-			t.Errorf("assert 'RedisClient.Password':: expected '%v', got '%v'", "1234", redisClient.Password)
-		}
-		if redisClient.DB != 3 {
-			t.Errorf("assert 'RedisClient.DB':: expected '%v', got '%v'", 3, redisClient.DB)
-		}
-		if redisClient.PoolSize != 128 {
-			t.Errorf("assert 'RedisClient.PoolSize':: expected '%v', got '%v'", 128, redisClient.PoolSize)
+			data := reply["data"].([]interface{})
+			if data == nil {
+				t.Errorf("missing data section")
+			}
+			var expectedDataLength int = 20
+			if expectedDataLength != len(data) {
+				t.Errorf("assert 'Jaeger Query size of replies':: expected '%v', got '%v'", expectedDataLength, len(data))
+			}
 		}
 	}
 }
 
 func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
+	/* like
+	 * $ export REDIS_HOST=kubernate-redis:26379
+	 * $ export REDIS_PASSWORD=1234
+	 * $ export REDIS_POOL_SIZE=128
+	 */
+	t.Setenv("REDIS_HOST", "kubernate-redis:26379")
+	t.Setenv("REDIS_PASSWORD", "1234")
+	t.Setenv("REDIS_POOL_SIZE", "128")
+
 	/* like
 	 * $ go run app.go --address ":10094" --compress true --hostname "DemoService"
 	 */
@@ -768,7 +745,9 @@ func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
 	var (
-		errorBuffer bytes.Buffer
+		loggingBuffer bytes.Buffer
+		errorBuffer   bytes.Buffer
+		testStartAt   time.Time
 	)
 
 	app := App{}
@@ -788,7 +767,14 @@ func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
 				}
 				fmt.Fprintf(&errorBuffer, "err: %+v", err)
 			}),
-			fasthttp.UseLogging(&LoggingService{}),
+			fasthttp.UseLogging(&MultiLoggerService{
+				LoggingServices: []fasthttp.LoggingService{
+					&LoggingService{},
+					&BlackholeLoggerService{
+						Buffer: &loggingBuffer,
+					},
+				},
+			}),
 			fasthttp.UseTracing(true),
 			fasthttp.UseUnhandledRequestHandler(func(ctx *fasthttp.RequestCtx) {
 				ctx.SetStatusCode(fasthttp.StatusNotFound)
@@ -806,6 +792,8 @@ func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
 	if err := starter.Start(runCtx); err != nil {
 		t.Error(err)
 	}
+
+	testStartAt = time.Now()
 
 	client := &http.Client{}
 	{
@@ -841,6 +829,59 @@ func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
 	case <-runCtx.Done():
 		if err := starter.Stop(context.Background()); err != nil {
 			t.Error(err)
+		}
+
+		testEndAt := time.Now()
+		var queryUrl = fmt.Sprintf(
+			"%s?end=%d&limit=21&lookback=1h&&service=fasthttp-trace-demo&start=%d",
+			app.Config.JaegerQueryUrl,
+			testEndAt.UnixMicro(),
+			testStartAt.UnixMicro())
+		req, err := http.NewRequest("GET", queryUrl, nil)
+		if err != nil {
+			t.Error(err)
+		}
+		resp, err := client.Do(req)
+		if resp.StatusCode != 200 {
+			t.Errorf("assert query 'Jeager Query Url StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			t.Error(err)
+		}
+		// t.Logf("%v", string(body))
+		// parse content
+		{
+			var reply map[string]interface{}
+			dec := json.NewDecoder(bytes.NewBuffer(body))
+			dec.UseNumber()
+			if err := dec.Decode(&reply); err != nil {
+				t.Error(err)
+			}
+
+			data := reply["data"].([]interface{})
+			if data == nil {
+				t.Errorf("missing data section")
+			}
+			var expectedDataLength int = 2
+			if expectedDataLength != len(data) {
+				t.Errorf("assert 'Jaeger Query size of replies':: expected '%v', got '%v'", expectedDataLength, len(data))
+			}
+		}
+
+		// test loggingBuffer
+		var expectedLoggingBuffer string = strings.Join([]string{
+			"CreateEventLog()\n",
+			"WriteRequest()\n",
+			"WriteResponse()\n",
+			"Flush()\n",
+			"CreateEventLog()\n",
+			"WriteRequest()\n",
+			"WriteError()\n",
+			"Flush()\n",
+		}, "")
+		if expectedLoggingBuffer != loggingBuffer.String() {
+			t.Errorf("assert loggingBuffer:: expected '%v', got '%v'", expectedLoggingBuffer, loggingBuffer.String())
 		}
 	}
 }
