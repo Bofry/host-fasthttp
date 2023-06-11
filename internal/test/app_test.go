@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -17,6 +18,11 @@ import (
 	fasthttp "github.com/Bofry/host-fasthttp"
 	"github.com/Bofry/host-fasthttp/response"
 	"github.com/Bofry/host-fasthttp/response/failure"
+)
+
+var (
+	__CONFIG_YAML_FILE        = "config.yaml"
+	__CONFIG_YAML_FILE_SAMPLE = "config.yaml.sample"
 )
 
 type RequestManager struct {
@@ -31,7 +37,42 @@ type RequestManager struct {
 	*FasthttpProxyRequest `url:"/Proxy/fasthttp"`
 }
 
+func copyFile(src, dst string) error {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return fmt.Errorf("%s is not a regular file", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destination.Close()
+	_, err = io.Copy(destination, source)
+	return err
+}
+
 func TestMain(m *testing.M) {
+	_, err := os.Stat(__CONFIG_YAML_FILE)
+	if err != nil {
+		if os.IsNotExist(err) {
+			err = copyFile(__CONFIG_YAML_FILE_SAMPLE, __CONFIG_YAML_FILE)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+
 	/* like
 	 * $ export REDIS_HOST=kubernate-redis:26379
 	 * $ export REDIS_PASSWORD=1234
