@@ -81,12 +81,6 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, state RequestSta
 			requestutil.InjectSpan(ctx, sp)
 
 			finalizer.Add(func(err interface{}) {
-				// unset Tracer and Span
-				requestutil.InjectTracer(ctx, nil)
-				requestutil.InjectSpan(ctx, nil)
-
-				defer sp.End()
-
 				if err != nil {
 					if e, ok := err.(error); ok {
 						sp.Err(e)
