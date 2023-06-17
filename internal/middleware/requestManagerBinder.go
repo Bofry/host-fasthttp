@@ -43,7 +43,11 @@ func (b *RequestManagerBinder) Bind(field structproto.FieldInfo, rv reflect.Valu
 	}
 
 	// register RequestHandlers
-	return b.registerRoute(field.IDName(), field.Name(), rvRequestHandler)
+	var (
+		moduleID = field.IDName()
+		url      = field.Name()
+	)
+	return b.registerRoute(moduleID, url, rvRequestHandler)
 }
 
 func (b *RequestManagerBinder) Deinit(context *structproto.StructProtoContext) error {
