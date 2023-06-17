@@ -68,6 +68,8 @@ type (
 type (
 	ErrorHandler   func(ctx *RequestCtx, err interface{})
 	RewriteHandler func(ctx *RequestCtx, path *RoutePath) *RoutePath
+
+	OnHostErrorHandler func(err error) (disposed bool)
 )
 
 func createNoopTracerProvider() *trace.SeverityTracerProvider {

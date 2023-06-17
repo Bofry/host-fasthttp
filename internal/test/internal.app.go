@@ -162,3 +162,7 @@ func (h *Host) Init(conf *Config) {
 		runtime.Version(),
 	}, " ")
 }
+
+func (h *Host) OnError(err error) (disposed bool) {
+	return false
+}

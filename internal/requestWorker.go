@@ -15,6 +15,8 @@ type RequestWorker struct {
 	RouteResolveService  *RouteResolveService
 	Router               Router
 
+	OnHostErrorProc OnHostErrorHandler
+
 	ErrorHandler            ErrorHandler
 	UnhandledRequestHandler RequestHandler
 	RewriteHandler          RewriteHandler
@@ -149,7 +151,13 @@ func (w *RequestWorker) processUnhandledRequest(ctx *RequestCtx) {
 func (w *RequestWorker) start(ctx context.Context) {
 	err := w.RequestHandleService.triggerStart(ctx)
 	if err != nil {
-		FasthttpHostLogger.Fatalf("%+v", err)
+		var disposed bool = false
+		if w.OnHostErrorProc != nil {
+			disposed = w.OnHostErrorProc(err)
+		}
+		if !disposed {
+			FasthttpHostLogger.Fatalf("%+v", err)
+		}
 	}
 }
 

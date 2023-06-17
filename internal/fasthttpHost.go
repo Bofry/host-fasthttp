@@ -28,6 +28,8 @@ type FasthttpHost struct {
 	requestHandleService *RequestHandleService
 	requestTracerService *RequestTracerService
 
+	onErrorEventHandler host.HostOnErrorEventHandler
+
 	wg          sync.WaitGroup
 	mutex       sync.Mutex
 	initialized bool
@@ -112,6 +114,7 @@ func (h *FasthttpHost) alloc() {
 		RequestTracerService: h.requestTracerService,
 		Router:               make(Router),
 		RouteResolveService:  NewRouteResolveService(),
+		OnHostErrorProc:      h.onHostError,
 	}
 }
 
@@ -137,6 +140,13 @@ func (h *FasthttpHost) init() {
 	h.configRequestHandler()
 	h.configCompress()
 	h.configListenAddress()
+}
+
+func (h *FasthttpHost) onHostError(err error) (disposed bool) {
+	if h.onErrorEventHandler != nil {
+		return h.onErrorEventHandler.OnError(err)
+	}
+	return false
 }
 
 func (h *FasthttpHost) setTextMapPropagator(propagator propagation.TextMapPropagator) {

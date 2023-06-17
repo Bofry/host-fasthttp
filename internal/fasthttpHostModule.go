@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/Bofry/host"
+	"github.com/Bofry/host/helper"
 )
 
 var _ host.HostModule = FasthttpHostModule{}
@@ -24,6 +25,11 @@ func (FasthttpHostModule) Init(h host.Host, app *host.AppModule) {
 		v.setTracerProvider(app.TracerProvider())
 		v.setTextMapPropagator(app.TextMapPropagator())
 		v.setLogger(app.Logger())
+
+		{
+			host := helper.HostHelper(app)
+			v.onErrorEventHandler = host.OnErrorEventHandler()
+		}
 	}
 }
 
