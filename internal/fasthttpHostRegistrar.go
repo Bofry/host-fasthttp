@@ -15,7 +15,7 @@ func (r *FasthttpHostRegistrar) RegisterRequestHandleModule(module RequestHandle
 }
 
 func (r *FasthttpHostRegistrar) RegisterRouteResolveModule(module RouteResolveModule) {
-	r.host.routeResolveService.Register(module)
+	r.host.requestWorker.RouteResolveService.Register(module)
 }
 
 func (r *FasthttpHostRegistrar) EnableTracer(enabled bool) {
@@ -39,5 +39,5 @@ func (r *FasthttpHostRegistrar) SetRequestManager(requestManager interface{}) {
 }
 
 func (r *FasthttpHostRegistrar) AddRoute(method string, path string, handler RequestHandler, handlerComponentID string) {
-	r.host.router.Add(method, path, handler, handlerComponentID)
+	r.host.requestWorker.Router.Add(method, path, handler, handlerComponentID)
 }

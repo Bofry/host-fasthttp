@@ -25,8 +25,6 @@ type FasthttpHost struct {
 	requestWorker  *RequestWorker
 	requestManager interface{}
 
-	router               Router
-	routeResolveService  *RouteResolveService
 	requestHandleService *RequestHandleService
 	requestTracerService *RequestTracerService
 
@@ -106,16 +104,14 @@ func (h *FasthttpHost) alloc() {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 
-	h.router = make(Router)
-	h.routeResolveService = NewRouteResolveService()
 	h.requestHandleService = NewRequestHandleService()
 	h.requestTracerService = NewRequestTracerService()
 
 	h.requestWorker = &RequestWorker{
 		RequestHandleService: h.requestHandleService,
-		RouteResolveService:  h.routeResolveService,
-		Router:               h.router,
 		RequestTracerService: h.requestTracerService,
+		Router:               make(Router),
+		RouteResolveService:  NewRouteResolveService(),
 	}
 }
 
