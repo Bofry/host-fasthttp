@@ -106,13 +106,12 @@ func TestStartup(t *testing.T) {
 			fasthttp.UseXHttpMethodHeader(),
 			fasthttp.UseErrorHandler(func(ctx *fasthttp.RequestCtx, err interface{}) {
 				if fail, ok := err.(*failure.Failure); ok {
-					content, _ := json.Marshal(fail)
-					if content != nil {
-						response.Failure(ctx, "application/json", content, fasthttp.StatusBadRequest)
+					if fail != nil {
+						response.Json.Failure(ctx, fail, fasthttp.StatusBadRequest)
 					}
 				}
 				if v, ok := err.(error); ok && v.Error() == "FAIL" {
-					response.Failure(ctx, string(ctx.Response.Header.ContentType()), []byte("FAIL"), 400)
+					response.Json.Failure(ctx, "FAIL", 400)
 				}
 				fmt.Fprintf(&errorBuffer, "err: %+v", err)
 			}),
@@ -408,13 +407,12 @@ func TestStartup_UseTracing(t *testing.T) {
 			fasthttp.UseXHttpMethodHeader(),
 			fasthttp.UseErrorHandler(func(ctx *fasthttp.RequestCtx, err interface{}) {
 				if fail, ok := err.(*failure.Failure); ok {
-					content, _ := json.Marshal(fail)
-					if content != nil {
-						response.Failure(ctx, "application/json", content, fasthttp.StatusBadRequest)
+					if fail != nil {
+						response.Json.Failure(ctx, fail, fasthttp.StatusBadRequest)
 					}
 				}
 				if v, ok := err.(error); ok && v.Error() == "FAIL" {
-					response.Failure(ctx, string(ctx.Response.Header.ContentType()), []byte("FAIL"), 400)
+					response.Json.Failure(ctx, "FAIL", 400)
 				}
 				fmt.Fprintf(&errorBuffer, "err: %+v", err)
 			}),
@@ -664,13 +662,12 @@ func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
 			fasthttp.UseXHttpMethodHeader(),
 			fasthttp.UseErrorHandler(func(ctx *fasthttp.RequestCtx, err interface{}) {
 				if fail, ok := err.(*failure.Failure); ok {
-					content, _ := json.Marshal(fail)
-					if content != nil {
-						response.Failure(ctx, "application/json", content, fasthttp.StatusBadRequest)
+					if fail != nil {
+						response.Json.Failure(ctx, fail, fasthttp.StatusBadRequest)
 					}
 				}
 				if v, ok := err.(error); ok && v.Error() == "FAIL" {
-					response.Failure(ctx, string(ctx.Response.Header.ContentType()), []byte("FAIL"), 400)
+					response.Json.Failure(ctx, "FAIL", 400)
 				}
 				fmt.Fprintf(&errorBuffer, "err: %+v", err)
 			}),

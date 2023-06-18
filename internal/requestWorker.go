@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Bofry/host-fasthttp/internal/requestutil"
+	"github.com/Bofry/host-fasthttp/internal/responseutil"
 	"github.com/Bofry/host-fasthttp/internal/tracingutil"
 	"github.com/Bofry/trace"
 )
@@ -99,6 +100,15 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, state RequestSta
 					trace.HttpResponse(ctx.Response.String()),
 					trace.HttpStatusCode(ctx.Response.StatusCode()),
 				)
+				respState := responseutil.ExtractResponseState(ctx)
+				if respState != nil {
+					switch respState.Flag() {
+					case responseutil.SUCCESS:
+						sp.Reply(trace.PASS, nil)
+					case responseutil.FAILURE:
+						sp.Reply(trace.FAIL, nil)
+					}
+				}
 			})
 
 			sp.Tags(
