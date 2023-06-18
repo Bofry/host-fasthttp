@@ -44,22 +44,22 @@ func (l MultiEventLog) Flush() {
 }
 
 // WriteError implements middleware.EventLog.
-func (l MultiEventLog) WriteError(ctx *fasthttp.RequestCtx, err interface{}, stackTrace []byte) {
+func (l MultiEventLog) OnError(ctx *fasthttp.RequestCtx, err interface{}, stackTrace []byte) {
 	for _, log := range l.EventLogs {
-		log.WriteError(ctx, err, stackTrace)
+		log.OnError(ctx, err, stackTrace)
 	}
 }
 
 // WriteRequest implements middleware.EventLog.
-func (l MultiEventLog) WriteRequest(ctx *fasthttp.RequestCtx) {
+func (l MultiEventLog) OnProcessRequest(ctx *fasthttp.RequestCtx) {
 	for _, log := range l.EventLogs {
-		log.WriteRequest(ctx)
+		log.OnProcessRequest(ctx)
 	}
 }
 
 // WriteResponse implements middleware.EventLog.
-func (l MultiEventLog) WriteResponse(ctx *fasthttp.RequestCtx, flag responseutil.ResponseFlag) {
+func (l MultiEventLog) OnProcessRequestComplete(ctx *fasthttp.RequestCtx, flag responseutil.ResponseFlag) {
 	for _, log := range l.EventLogs {
-		log.WriteResponse(ctx, flag)
+		log.OnProcessRequestComplete(ctx, flag)
 	}
 }

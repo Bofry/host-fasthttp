@@ -776,12 +776,12 @@ func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
 		// test loggingBuffer
 		var expectedLoggingBuffer string = strings.Join([]string{
 			"CreateEventLog()\n",
-			"WriteRequest()\n",
-			"WriteResponse()\n",
+			"OnProcessRequest()\n",
+			"OnProcessRequestComplete()\n",
 			"Flush()\n",
 			"CreateEventLog()\n",
-			"WriteRequest()\n",
-			"WriteError()\n",
+			"OnProcessRequest()\n",
+			"OnError()\n",
 			"Flush()\n",
 		}, "")
 		if expectedLoggingBuffer != loggingBuffer.String() {

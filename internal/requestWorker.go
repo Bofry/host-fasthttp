@@ -100,9 +100,13 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, state RequestSta
 					trace.HttpResponse(ctx.Response.String()),
 					trace.HttpStatusCode(ctx.Response.StatusCode()),
 				)
-				respState := responseutil.ExtractResponseState(ctx)
-				if respState != nil {
-					switch respState.Flag() {
+
+				var (
+					resFlag = responseutil.ExtractResponseState(ctx)
+				)
+
+				if resFlag != nil {
+					switch resFlag.Flag() {
 					case responseutil.SUCCESS:
 						sp.Reply(trace.PASS, nil)
 					case responseutil.FAILURE:

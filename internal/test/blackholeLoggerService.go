@@ -31,18 +31,18 @@ type BlackholeEventLog struct {
 	buffer *bytes.Buffer
 }
 
-func (l *BlackholeEventLog) WriteError(ctx *fasthttp.RequestCtx, err interface{}, stackTrace []byte) {
-	l.buffer.WriteString("WriteError()")
+func (l *BlackholeEventLog) OnError(ctx *fasthttp.RequestCtx, err interface{}, stackTrace []byte) {
+	l.buffer.WriteString("OnError()")
 	l.buffer.WriteByte('\n')
 }
 
-func (l *BlackholeEventLog) WriteRequest(ctx *fasthttp.RequestCtx) {
-	l.buffer.WriteString("WriteRequest()")
+func (l *BlackholeEventLog) OnProcessRequest(ctx *fasthttp.RequestCtx) {
+	l.buffer.WriteString("OnProcessRequest()")
 	l.buffer.WriteByte('\n')
 }
 
-func (l *BlackholeEventLog) WriteResponse(ctx *fasthttp.RequestCtx, flag response.ResponseFlag) {
-	l.buffer.WriteString("WriteResponse()")
+func (l *BlackholeEventLog) OnProcessRequestComplete(ctx *fasthttp.RequestCtx, flag response.ResponseFlag) {
+	l.buffer.WriteString("OnProcessRequestComplete()")
 	l.buffer.WriteByte('\n')
 }
 

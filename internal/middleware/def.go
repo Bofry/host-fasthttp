@@ -22,9 +22,9 @@ type (
 	}
 
 	EventLog interface {
-		WriteRequest(ctx *internal.RequestCtx)
-		WriteError(ctx *internal.RequestCtx, err interface{}, stackTrace []byte)
-		WriteResponse(ctx *internal.RequestCtx, flag response.ResponseFlag)
+		OnError(ctx *internal.RequestCtx, err interface{}, stackTrace []byte)
+		OnProcessRequest(ctx *internal.RequestCtx)
+		OnProcessRequestComplete(ctx *internal.RequestCtx, flag response.ResponseFlag)
 		Flush()
 	}
 )

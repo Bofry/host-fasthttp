@@ -37,7 +37,7 @@ func (m *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, state RequestState
 		}
 
 		eventLog := m.loggingService.CreateEventLog(evidence)
-		eventLog.WriteRequest(ctx)
+		eventLog.OnProcessRequest(ctx)
 
 		recover.
 			Defer(func(err interface{}) {
@@ -45,9 +45,9 @@ func (m *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, state RequestState
 				if err != nil {
 					defer func() {
 						if resp != nil {
-							eventLog.WriteResponse(ctx, resp.Flag())
+							eventLog.OnProcessRequestComplete(ctx, resp.Flag())
 						} else {
-							eventLog.WriteError(ctx, err, debug.Stack())
+							eventLog.OnError(ctx, err, debug.Stack())
 						}
 						eventLog.Flush()
 					}()
@@ -56,9 +56,9 @@ func (m *LoggingHandleModule) ProcessRequest(ctx *RequestCtx, state RequestState
 					// will handle it.
 				} else {
 					if resp != nil {
-						eventLog.WriteResponse(ctx, resp.Flag())
+						eventLog.OnProcessRequestComplete(ctx, resp.Flag())
 					} else {
-						eventLog.WriteResponse(ctx, response.UNKNOWN)
+						eventLog.OnProcessRequestComplete(ctx, response.UNKNOWN)
 					}
 					eventLog.Flush()
 				}
