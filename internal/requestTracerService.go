@@ -9,8 +9,7 @@ import (
 )
 
 type RequestTracerService struct {
-	TracerProvider    *trace.SeverityTracerProvider
-	TextMapPropagator propagation.TextMapPropagator
+	TracerManager *TracerManager
 
 	Enabled bool
 
@@ -18,10 +17,6 @@ type RequestTracerService struct {
 
 	tracers            map[string]*trace.SeverityTracer
 	tracersInitializer sync.Once
-}
-
-func NewRequestTracerService() *RequestTracerService {
-	return &RequestTracerService{}
 }
 
 func (s *RequestTracerService) Tracer(id string) *trace.SeverityTracer {
@@ -33,13 +28,11 @@ func (s *RequestTracerService) Tracer(id string) *trace.SeverityTracer {
 	return s.unhandledRequestTracer
 }
 
+func (s *RequestTracerService) TextMapPropagator() propagation.TextMapPropagator {
+	return s.TracerManager.TextMapPropagator
+}
+
 func (s *RequestTracerService) init(requestManager interface{}) {
-	if s.TextMapPropagator == nil {
-		s.TextMapPropagator = defaultTextMapPropagator
-	}
-	if s.TracerProvider == nil {
-		s.TracerProvider = defaultTracerProvider
-	}
 	if s.Enabled {
 		trace.SetSpanExtractor(defaultSpanExtractor)
 
@@ -73,10 +66,7 @@ func (s *RequestTracerService) buildTracer(requestManager interface{}) {
 
 		rvRequest = reflect.Indirect(rvRequest)
 		if rvRequest.Kind() == reflect.Struct {
-			rvRequest = reflect.Indirect(rvRequest)
-
-			componentName := rvRequest.Type().Name()
-			tracer := s.TracerProvider.Tracer(componentName)
+			tracer := s.TracerManager.createManagedTracer(rvRequest.Type())
 
 			info := rvManager.Type().Field(i)
 			if _, ok := s.tracers[info.Name]; !ok {
@@ -98,13 +88,5 @@ func (s *RequestTracerService) registerTracer(id string, tracer *trace.SeverityT
 }
 
 func (s *RequestTracerService) makeUnhandledRequestTracer() {
-	var (
-		tp *trace.SeverityTracerProvider = defaultTracerProvider
-	)
-
-	if s.Enabled {
-		tp = s.TracerProvider
-	}
-
-	s.unhandledRequestTracer = tp.Tracer("")
+	s.unhandledRequestTracer = s.TracerManager.createTracer("")
 }

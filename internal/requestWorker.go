@@ -51,7 +51,7 @@ func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
 	tr = w.RequestTracerService.Tracer(componentID)
 	sp = tr.ExtractWithPropagator(
 		ctx,
-		w.RequestTracerService.TextMapPropagator,
+		w.RequestTracerService.TextMapPropagator(),
 		carrier,
 		spanName)
 	defer sp.End()

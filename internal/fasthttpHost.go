@@ -28,6 +28,8 @@ type FasthttpHost struct {
 	requestHandleService *RequestHandleService
 	requestTracerService *RequestTracerService
 
+	tracerManager *TracerManager
+
 	onErrorEventHandler host.HostOnErrorEventHandler
 
 	wg          sync.WaitGroup
@@ -106,8 +108,11 @@ func (h *FasthttpHost) alloc() {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 
+	h.tracerManager = NewTraceManager()
 	h.requestHandleService = NewRequestHandleService()
-	h.requestTracerService = NewRequestTracerService()
+	h.requestTracerService = &RequestTracerService{
+		TracerManager: h.tracerManager,
+	}
 
 	h.requestWorker = &RequestWorker{
 		RequestHandleService: h.requestHandleService,
@@ -116,6 +121,9 @@ func (h *FasthttpHost) alloc() {
 		RouteResolveService:  NewRouteResolveService(),
 		OnHostErrorProc:      h.onHostError,
 	}
+
+	// register TracerManager
+	GlobalTracerManager = h.tracerManager
 }
 
 func (h *FasthttpHost) init() {
@@ -150,11 +158,11 @@ func (h *FasthttpHost) onHostError(err error) (disposed bool) {
 }
 
 func (h *FasthttpHost) setTextMapPropagator(propagator propagation.TextMapPropagator) {
-	h.requestTracerService.TextMapPropagator = propagator
+	h.tracerManager.TextMapPropagator = propagator
 }
 
 func (h *FasthttpHost) setTracerProvider(provider *trace.SeverityTracerProvider) {
-	h.requestTracerService.TracerProvider = provider
+	h.tracerManager.TracerProvider = provider
 }
 
 func (h *FasthttpHost) setLogger(l *log.Logger) {
