@@ -15,6 +15,9 @@ type RequestTracerService struct {
 
 	unhandledRequestTracer *trace.SeverityTracer
 
+	tracerProvider    *trace.SeverityTracerProvider
+	textMapPropagator propagation.TextMapPropagator
+
 	tracers            map[string]*trace.SeverityTracer
 	tracersInitializer sync.Once
 }
@@ -34,6 +37,13 @@ func (s *RequestTracerService) TextMapPropagator() propagation.TextMapPropagator
 
 func (s *RequestTracerService) init(requestManager interface{}) {
 	if s.Enabled {
+		if s.tracerProvider != nil {
+			s.TracerManager.TracerProvider = s.tracerProvider
+		}
+		if s.textMapPropagator != nil {
+			s.TracerManager.TextMapPropagator = s.textMapPropagator
+		}
+
 		trace.SetSpanExtractor(defaultSpanExtractor)
 
 		s.makeTracerMap()

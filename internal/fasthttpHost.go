@@ -158,11 +158,11 @@ func (h *FasthttpHost) onHostError(err error) (disposed bool) {
 }
 
 func (h *FasthttpHost) setTextMapPropagator(propagator propagation.TextMapPropagator) {
-	h.tracerManager.TextMapPropagator = propagator
+	h.requestTracerService.textMapPropagator = propagator
 }
 
 func (h *FasthttpHost) setTracerProvider(provider *trace.SeverityTracerProvider) {
-	h.tracerManager.TracerProvider = provider
+	h.requestTracerService.tracerProvider = provider
 }
 
 func (h *FasthttpHost) setLogger(l *log.Logger) {
