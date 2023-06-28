@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 
@@ -47,6 +48,14 @@ func (b *RequestManagerBinder) Bind(field structproto.FieldInfo, rv reflect.Valu
 		moduleID = field.IDName()
 		url      = field.Name()
 	)
+
+	{
+		optExpandEnv := field.Tag().Get(TAG_OPT_EXPAND_ENV)
+		if optExpandEnv != "off" || len(optExpandEnv) == 0 || optExpandEnv == "on" {
+			url = os.ExpandEnv(url)
+		}
+	}
+
 	return b.registerRoute(moduleID, url, rvRequestHandler)
 }
 
