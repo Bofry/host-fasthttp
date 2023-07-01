@@ -14,6 +14,9 @@ var (
 
 	TAG_URL            = "url"
 	TAG_OPT_EXPAND_ENV = "@ExpandEnv"
+
+	NoopLoggingServiceSingleton = NoopLoggingService{}
+	NoopEventLogSingleton       = NoopEventLog(0)
 )
 
 type (

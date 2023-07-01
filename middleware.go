@@ -15,18 +15,16 @@ func UseErrorHandler(handler ErrorHandler) host.Middleware {
 	}
 }
 
-func UseLogging(service LoggingService) host.Middleware {
-	if service == nil {
-		panic("argument 'service' cannot be nil")
+func UseLogging(services ...LoggingService) host.Middleware {
+	if len(services) == 0 {
+		return &middleware.LoggingMiddleware{
+			LoggingService: middleware.NoopLoggingServiceSingleton,
+		}
 	}
 
 	return &middleware.LoggingMiddleware{
-		LoggingService: service,
+		LoggingService: middleware.NewCompositeLoggingService(services...),
 	}
-}
-
-func UseResourceManager(resourceManager interface{}) host.Middleware {
-	panic("method is obsolete. Use UseRequestManager() instead.")
 }
 
 func UseRequestManager(requestManager interface{}) host.Middleware {

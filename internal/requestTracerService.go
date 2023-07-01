@@ -36,6 +36,10 @@ func (s *RequestTracerService) TextMapPropagator() propagation.TextMapPropagator
 }
 
 func (s *RequestTracerService) init(requestManager interface{}) {
+	if requestManager == nil {
+		return
+	}
+
 	if s.Enabled {
 		if s.tracerProvider != nil {
 			s.TracerManager.TracerProvider = s.tracerProvider
