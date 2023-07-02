@@ -158,7 +158,7 @@ func (w *RequestWorker) processUnhandledRequest(ctx *RequestCtx) {
 	if handler != nil {
 		handler(ctx)
 	} else {
-		ctx.SetStatusCode(StatusNotFound)
+		ctx.NotFound()
 	}
 }
 

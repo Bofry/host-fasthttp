@@ -25,6 +25,7 @@ func Success(ctx *http.RequestCtx, contentType string, body []byte) {
 }
 
 func Failure(ctx *http.RequestCtx, contentType string, message []byte, statusCode int) {
+	ctx.Response.Reset()
 	ctx.SetStatusCode(statusCode)
 	ctx.Success(contentType, message)
 
