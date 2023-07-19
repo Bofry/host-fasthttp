@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/Bofry/host/app"
 	"github.com/fasthttp/websocket"
@@ -31,6 +32,10 @@ type MessageClient struct {
 	message chan *Message
 	stop    chan struct{}
 	done    chan struct{}
+
+	stopped bool
+	closed  bool
+	mutex   sync.Mutex
 }
 
 func NewMessageClient(ctx *fasthttp.RequestCtx) *MessageClient {
@@ -49,16 +54,36 @@ func (client *MessageClient) RegisterCloseHandler(proc func(app.MessageClient)) 
 
 // Close implements app.MessageSource.
 func (client *MessageClient) Close() error {
-	for _, onClose := range client.onCloseDelegate {
-		onClose(client)
+	if client.closed {
+		return nil
 	}
-	close(client.done)
+
+	client.mutex.Lock()
+	defer client.mutex.Unlock()
+
+	if !client.closed {
+		client.closed = true
+		for _, onClose := range client.onCloseDelegate {
+			onClose(client)
+		}
+		close(client.done)
+	}
 	return nil
 }
 
 // Stop implements app.MessageSource.
 func (client *MessageClient) Stop() {
-	close(client.stop)
+	if client.stopped {
+		return
+	}
+
+	client.mutex.Lock()
+	defer client.mutex.Unlock()
+
+	if !client.stopped {
+		client.stopped = true
+		close(client.stop)
+	}
 }
 
 // Start implements app.MessageSource.
@@ -79,6 +104,10 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 		ctx      = client.ctx
 	)
 	err := upgrader.Upgrade(ctx, func(ws *websocket.Conn) {
+		defer func() {
+			// client.Stop()
+			client.Close()
+		}()
 		defer ws.Close()
 
 		var kontinue bool = true
