@@ -105,7 +105,6 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 	)
 	err := upgrader.Upgrade(ctx, func(ws *websocket.Conn) {
 		defer func() {
-			// client.Stop()
 			client.Close()
 		}()
 		defer ws.Close()
