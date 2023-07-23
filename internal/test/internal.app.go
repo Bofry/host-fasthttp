@@ -153,7 +153,7 @@ func (h *Host) Init(conf *Config) {
 	h.Server = &fasthttp.Server{
 		Name:                          conf.ServerName,
 		DisableKeepalive:              true,
-		DisableHeaderNamesNormalizing: true,
+		DisableHeaderNamesNormalizing: false,
 	}
 	h.ListenAddress = conf.ListenAddress
 	h.EnableCompress = conf.EnableCompress
