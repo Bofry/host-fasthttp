@@ -14,6 +14,8 @@ var (
 		websocket.TextMessage:   app.TEXT_MESSAGE,
 		websocket.BinaryMessage: app.BINARY_MESSAGE,
 		websocket.CloseMessage:  app.CLOSE_MESSAGE,
+		websocket.PingMessage:   app.PING_MESSAGE,
+		websocket.PongMessage:   app.PONG_MESSAGE,
 	}
 
 	__MessageFormatMap = map[app.MessageFormat]int{
@@ -122,8 +124,6 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 			}
 
 			switch mt {
-			case websocket.PingMessage, websocket.PongMessage:
-				// ignore
 			case websocket.CloseMessage:
 				message := &app.Message{
 					Format: app.CLOSE_MESSAGE,
