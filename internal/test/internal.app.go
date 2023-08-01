@@ -128,7 +128,7 @@ func (app *App) TextMapPropagator() propagation.TextMapPropagator {
 	return trace.GetTextMapPropagator()
 }
 
-func (provider *ServiceProvider) Init(conf *Config) {
+func (provider *ServiceProvider) Init(conf *Config, app *App) {
 	provider.CacheClient = &CacheServer{
 		Host:     conf.RedisHost,
 		Password: conf.RedisPassword,
