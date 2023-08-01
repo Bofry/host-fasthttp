@@ -27,7 +27,8 @@ var (
 var _ app.MessageClient = new(MessageClient)
 
 type MessageClient struct {
-	ctx *fasthttp.RequestCtx
+	ctx     *fasthttp.RequestCtx
+	options []MessageClientOption
 
 	onCloseDelegate []func(app.MessageClient)
 
@@ -40,12 +41,13 @@ type MessageClient struct {
 	mutex   sync.Mutex
 }
 
-func NewMessageClient(ctx *fasthttp.RequestCtx) *MessageClient {
+func NewMessageClient(ctx *fasthttp.RequestCtx, opts ...MessageClientOption) *MessageClient {
 	return &MessageClient{
 		ctx:     ctx,
 		message: make(chan *Message),
 		stop:    make(chan struct{}),
 		done:    make(chan struct{}),
+		options: opts,
 	}
 }
 
@@ -105,6 +107,12 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 		upgrader = websocket.FastHTTPUpgrader{}
 		ctx      = client.ctx
 	)
+
+	// setup WebSocketOption
+	for _, opt := range client.options {
+		opt.apply(upgrader)
+	}
+
 	err := upgrader.Upgrade(ctx, func(ws *websocket.Conn) {
 		defer func() {
 			client.Close()
