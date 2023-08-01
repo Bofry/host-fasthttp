@@ -110,7 +110,7 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 
 	// setup WebSocketOption
 	for _, opt := range client.options {
-		opt.apply(upgrader)
+		opt.apply(&upgrader)
 	}
 
 	err := upgrader.Upgrade(ctx, func(ws *websocket.Conn) {
