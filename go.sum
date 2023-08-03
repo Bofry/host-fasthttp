@@ -26,6 +26,8 @@ github.com/Bofry/host v0.2.0-alpha.20230703153353.0.20230723152707-778ac728c1d7 
 github.com/Bofry/host v0.2.0-alpha.20230703153353.0.20230723152707-778ac728c1d7/go.mod h1:VM/PjwzxwTN0OUvzRfbwPG/Gy2ukZgToCJ9ouNsMEHU=
 github.com/Bofry/host v0.2.0-alpha.20230703153353.0.20230801153131-aadbe87fc4d2 h1:EY/W4MzBXqaieH2+gaIMQC3nLeSi8h3vqFjOfmBg/AM=
 github.com/Bofry/host v0.2.0-alpha.20230703153353.0.20230801153131-aadbe87fc4d2/go.mod h1:VM/PjwzxwTN0OUvzRfbwPG/Gy2ukZgToCJ9ouNsMEHU=
+github.com/Bofry/host v0.2.0-alpha.20230703153353.0.20230803165642-5ecda928d254 h1:gC5mhJkphHzrOl8LBTaIfXSd+NpUklhLVy3jSexuDyM=
+github.com/Bofry/host v0.2.0-alpha.20230703153353.0.20230803165642-5ecda928d254/go.mod h1:VM/PjwzxwTN0OUvzRfbwPG/Gy2ukZgToCJ9ouNsMEHU=
 github.com/Bofry/structproto v0.2.0-alpha.20221227043020/go.mod h1:ExAR9NDYUXZOVlAJrz2oavvVxjaegV7Mb91HQcQYWLA=
 github.com/Bofry/structproto v0.2.0-alpha.20230613095206 h1:/L/2NiPVAE1La6umcWvIGQwAXuYthoU8uQvrmfCc4fg=
 github.com/Bofry/structproto v0.2.0-alpha.20230613095206/go.mod h1:ExAR9NDYUXZOVlAJrz2oavvVxjaegV7Mb91HQcQYWLA=
