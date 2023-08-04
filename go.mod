@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Bofry/config v0.2.1-0.20230123080007-f27e105e05e2
-	github.com/Bofry/host v0.2.0-alpha.20230703153353.0.20230803165642-5ecda928d254
+	github.com/Bofry/host v0.2.0
 	github.com/Bofry/structproto v0.2.0-alpha.20230613095206
 	github.com/Bofry/trace v0.2.0-alpha.20230703152613
 	github.com/valyala/fasthttp v1.47.0
@@ -33,11 +33,11 @@ require (
 	go.opentelemetry.io/otel/trace v1.16.0
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/dig v1.17.0 // indirect
-	go.uber.org/fx v1.19.3 // indirect
+	go.uber.org/fx v1.20.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.24.0 // indirect
+	go.uber.org/zap v1.25.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
-	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/sys v0.10.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
