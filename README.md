@@ -68,15 +68,15 @@ Bofry/host-fasthttp 快速入門指南
     > **⠿ 取得 GOPATH 的 bin 完整路徑，依下列操作步驟**：
     >
     > 使用 `go env GOPATH` 查看 GOPATH 後，在後面加上 `/bin` 即是 GOPATH 的 bin 目錄，例：
->
+    >
     >   ```bash
     >   $ go env GOPATH
     >   /Users/go
     >   ```
->
+    >
     > 因此推得 GOPATH bin 目錄的完整路徑為 */User/go/bin*
 
-4. 安裝所需的 go tool
+1. 安裝所需的 go tool
 
     - Go 1.15 含以前使用下面指令：
 
@@ -170,10 +170,10 @@ Bofry/host-fasthttp 快速入門指南
 - **步驟四: 啟動專案**
 
   ```bash
-  gorun
+  rungo
   ```
 
-  > 💬 `gorun` 是一個結合 `godotenv` 與 `go run` 命令的工具。
+  > 💬 `rungo` 是一個結合 `godotenv` 與 `go run` 命令的工具。
   >
   > 💬 使用 `Ctrl` + `C` 來關閉服務。
 
