@@ -1,15 +1,19 @@
 **August 2021**  |  **v1.0**
 
-
 Bofry/host-fasthttp 快速入門指南
 ==================================
 
 ----------------------------------------------------------------
+
 #### 目錄
+
+- [Bofry/host-fasthttp 快速入門指南](#bofryhost-fasthttp-快速入門指南)
+      - [目錄](#目錄)
   - [簡介](#簡介)
   - [環境要求](#環境要求)
   - [快速入門](#快速入門)
   - [相關資源](#相關資源)
+
 ----------------------------------------------------------------
 
 ## 簡介
@@ -29,26 +33,28 @@ Bofry/host-fasthttp 快速入門指南
    7. 內建安全停止（*Graceful Shutdown*）機制。
    8. 框架使用 *DI* 機制來減低耦合與簡化操作複雜度。
 
-[🔝回目錄](#%e7%9b%ae%e9%8c%84)
-
+[🔝回目錄](#%E7%9B%AE%E9%8C%84)
 
 ----------------
+
 ## 環境要求
 
 1. GO 1.14 以上
 
-    下載及安裝指引：https://golang.org/doc/install
+    下載及安裝指引：<https://golang.org/doc/install>
 
 2. Git
 
 3. 將 GOPATH 的 bin 目錄加入你的 system PATH 變數中
 
     - Linux 系統於 `~/.bashrc` 中加入
+
       ```bash
       export PATH=<your_gopath_bin_dir>:$PATH
       ```
 
     - Mac 系統於 `~/.bash_profile` 中加入
+
       ```bash
       export PATH=<your_gopath_bin_dir>:$PATH
       ```
@@ -62,101 +68,123 @@ Bofry/host-fasthttp 快速入門指南
     > **⠿ 取得 GOPATH 的 bin 完整路徑，依下列操作步驟**：
     >
     > 使用 `go env GOPATH` 查看 GOPATH 後，在後面加上 `/bin` 即是 GOPATH 的 bin 目錄，例：
+>
     >   ```bash
     >   $ go env GOPATH
     >   /Users/go
     >   ```
-    > 因此推得 GOPATH bin 目錄的完整路徑為 _/User/go/bin_
+>
+    > 因此推得 GOPATH bin 目錄的完整路徑為 */User/go/bin*
 
 4. 安裝所需的 go tool
 
     - Go 1.15 含以前使用下面指令：
+
     ```bash
-    go get -v github.com/Bofry/go-tools/gorun
+    go get -v github.com/Bofry/go-tools/rungo
     go get -v github.com/Bofry/go-tools/host-fasthttp
     go get -v github.com/Bofry/go-tools/gen-host-fasthttp-resource
     go get -v github.com/joho/godotenv/cmd/godotenv
     ```
+
     - Go 1.16 含以後使用下面指令：
+
     ```bash
-    go install github.com/Bofry/go-tools/gorun
+    go install github.com/Bofry/go-tools/rungo
     go install github.com/Bofry/go-tools/host-fasthttp
     go install github.com/Bofry/go-tools/gen-host-fasthttp-resource
     go install github.com/joho/godotenv/cmd/godotenv
     ```
 
     - Go 1.16 含以後使用下面指令：
+
     ```bash
-    go install github.com/Bofry/go-tools/gorun
-    go install github.com/Bofry/go-tools/host-fasthttp
-    go install github.com/Bofry/go-tools/gen-host-fasthttp-resource
-    go install github.com/joho/godotenv/cmd/godotenv
+    go install github.com/Bofry/go-tools/rungo@latest
+    go install github.com/Bofry/go-tools/host-fasthttp@latest
+    go install github.com/Bofry/go-tools/gen-host-fasthttp-resource@latest
+    go install github.com/joho/godotenv/cmd/godotenv@latest
     ```
+
     > 🐾 see *Deprecation of 'go get' for installing executables* <sup>[🔗](https://go.dev/doc/go-get-install-deprecation)</sup>
 
-[🔝回目錄](#%e7%9b%ae%e9%8c%84)
-
+[🔝回目錄](#%E7%9B%AE%E9%8C%84)
 
 ----------------
+
 ## 快速入門
 
 ⠿ 本節提供快速建構 **myapp** 應用程式的基本步驟。
 
-
 - **步驟一: 決定你的專案資料夾**
 
   ⠿ 建立名稱為 **myapp** 的專案。
-    ```bash
-    $ mkdir myapp
 
-    $ cd myapp
+    ```bash
+    mkdir myapp
+
+    cd myapp
     ```
 
 - **步驟二: 初始化你的專案**
   1. 使用 `go mod init` 初始化 golang 專案。
+
       ```bash
-      $ go mod init apiservice
+      go mod init apiservice
       ```
+
   2. 使用 `host-fasthttp init` 進行專案的基本配置。
+
       ```bash
-      $ host-fasthttp init
+      host-fasthttp init
       ```
+
       > 💬 `host-fasthttp init` 會產生 .env、app.go、config.yaml、.conf/、internal/appContext.go……等專案檔，並進行 http server 最基本的配置。
 
 - **步驟三: 加入預設的 http request handler**
   1. 使用編輯器打開 **app.go** 檔。
   2. 找到第11行，
+
       ```go
       type ResourceManager struct {}
       ```
+
       更改為：
+
       ```go
       type ResourceManager struct {
         *DefaultResource `url:"/"`
       }
       ```
+
       > 💬 若你使用 IDE，比如 vscode 則可能會標示語法錯誤，請先忽略。
   3. 執行 `go generate` 來配置 http request handler 檔案。
+
       ```bash
-      $ go generate
+      go generate
       ```
+
       > 💬 這個動作為幫你產生 **defaultResouce.go** 的檔案，並會放在專案內的 `/resource` 目錄中。
       >
       > 💬 若使用 IDE 且支援 go generate 指令的話，可以在程式碼上方直接按下 `run go generate` 的按鈕，也會有相同的效果。
 
 - **步驟四: 啟動專案**
+
   ```bash
-  $ gorun
+  gorun
   ```
+
   > 💬 `gorun` 是一個結合 `godotenv` 與 `go run` 命令的工具。
   >
   > 💬 使用 `Ctrl` + `C` 來關閉服務。
 
 - **步驟五: 檢查**
+
   ```bash
-  $ curl -XPING -sv http://127.0.0.1:10074/
+  curl -XPING -sv http://127.0.0.1:10074/
   ```
+
   將會得到以下的輸出：
+
   ```bash
   PONG
   *   Trying 127.0.0.1:10074...
@@ -179,9 +207,9 @@ Bofry/host-fasthttp 快速入門指南
   ```
 
 ----------------
+
 ## 相關資源
 
   1. 有關 `go mod` 的名稱規範詳見 `go mod init` 的官方說明[連結](https://golang.org/ref/mod#go-mod-init)。
 
-
-[🔝回目錄](#%e7%9b%ae%e9%8c%84)
+[🔝回目錄](#%E7%9B%AE%E9%8C%84)

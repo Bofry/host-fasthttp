@@ -1,4 +1,9 @@
 .vscode
+.env
+
+.DS_Store
+
+.VERSION
 
 # local environment shell script
 env.bat
