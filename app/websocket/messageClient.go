@@ -39,6 +39,8 @@ type MessageClient struct {
 	stopped bool
 	closed  bool
 	mutex   sync.Mutex
+
+	*app.MessageClientInfo
 }
 
 func NewMessageClient(ctx *fasthttp.RequestCtx, opts ...MessageClientOption) *MessageClient {
@@ -48,6 +50,8 @@ func NewMessageClient(ctx *fasthttp.RequestCtx, opts ...MessageClientOption) *Me
 		stop:    make(chan struct{}),
 		done:    make(chan struct{}),
 		options: opts,
+
+		MessageClientInfo: app.NewMessageClientInfo(),
 	}
 }
 
@@ -67,8 +71,10 @@ func (client *MessageClient) Close() error {
 
 	if !client.closed {
 		client.closed = true
+
+		restricted := app.NewRestrictedMessageClient(client)
 		for _, onClose := range client.onCloseDelegate {
-			onClose(client)
+			onClose(restricted)
 		}
 		close(client.done)
 	}
