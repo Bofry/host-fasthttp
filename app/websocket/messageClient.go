@@ -124,6 +124,16 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 			client.Close()
 		}()
 		defer ws.Close()
+		defer func() {
+			err := recover()
+			if err != nil {
+				if verr, ok := err.(error); ok {
+					pipe.Error(verr)
+				} else {
+					pipe.Error(fmt.Errorf("%v", err))
+				}
+			}
+		}()
 
 		var kontinue bool = true
 		for kontinue {
