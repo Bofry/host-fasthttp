@@ -8,6 +8,8 @@ github.com/Bofry/host v0.2.3-0.20231027105556-1178b85340d7 h1:h2szplQ+37Irwc1Wfd
 github.com/Bofry/host v0.2.3-0.20231027105556-1178b85340d7/go.mod h1:1wjOoioaJg/+K6h01RnBMkkoVccrr3ZAoDNYijkD/cE=
 github.com/Bofry/host v0.2.3-0.20231027120334-1518900a0709 h1:9BdSISyzULLm9/GLso1ndzPT9qP1pWCJbfsob28UyAs=
 github.com/Bofry/host v0.2.3-0.20231027120334-1518900a0709/go.mod h1:1wjOoioaJg/+K6h01RnBMkkoVccrr3ZAoDNYijkD/cE=
+github.com/Bofry/host v0.2.3 h1:DsXD5OTbKKlBCieU3sZXAKawRKcM5zt46Wq7ANeuSsk=
+github.com/Bofry/host v0.2.3/go.mod h1:1wjOoioaJg/+K6h01RnBMkkoVccrr3ZAoDNYijkD/cE=
 github.com/Bofry/structproto v0.2.1 h1:rcYqwH0dyEyAsfLsfejL/7YF9inIxnT/Y7uQfebPXWQ=
 github.com/Bofry/structproto v0.2.1/go.mod h1:j4dn8G1MhaBWHQBljNOkaDk8D5aW3Y/+Q/3hxQRNPKo=
 github.com/Bofry/trace v0.2.0-alpha.20230703152613 h1:UzN4zpq2+2+E8oIs9GpDFlH/7k6oFIcDX07zmgT8Do8=
