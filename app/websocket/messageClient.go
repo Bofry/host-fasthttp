@@ -91,6 +91,9 @@ func (client *MessageClient) Stop() {
 	defer client.mutex.Unlock()
 
 	if !client.stopped {
+		defer func() {
+			client.Close()
+		}()
 		client.stopped = true
 		close(client.stop)
 	}
@@ -120,9 +123,6 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 	}
 
 	err := upgrader.Upgrade(ctx, func(ws *websocket.Conn) {
-		defer func() {
-			client.Close()
-		}()
 		defer ws.Close()
 
 		var kontinue bool = true
