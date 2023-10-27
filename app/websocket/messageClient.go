@@ -139,11 +139,11 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 		for kontinue {
 			mt, p, err := ws.ReadMessage()
 			if err != nil {
-				if _, ok := err.(*websocket.CloseError); ok {
-					// pipe.Error(err)
-					// break
-					ws.Close()
-				}
+				// if _, ok := err.(*websocket.CloseError); ok {
+				// 	// pipe.Error(err)
+				// 	// break
+				// 	ws.Close()
+				// }
 				pipe.Error(err)
 				continue
 			}
