@@ -140,8 +140,9 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 			mt, p, err := ws.ReadMessage()
 			if err != nil {
 				if _, ok := err.(*websocket.CloseError); ok {
-					pipe.Error(err)
-					break
+					// pipe.Error(err)
+					// break
+					ws.Close()
 				}
 				pipe.Error(err)
 				continue
@@ -179,8 +180,8 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 				if err != nil {
 					pipe.Error(err)
 				}
-			// case <-client.stop:
-			// 	ws.SetReadLimit(0)
+			case <-client.stop:
+				ws.SetReadLimit(0)
 			case <-client.done:
 				kontinue = false
 				continue
