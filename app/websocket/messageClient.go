@@ -143,6 +143,7 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 					Format: app.CLOSE_MESSAGE,
 					Body:   p,
 				}
+				fmt.Println("[debug]:: sending close.....")
 				pipe.Forward(client, message)
 				kontinue = false
 				continue
