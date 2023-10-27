@@ -98,17 +98,6 @@ func (client *MessageClient) Stop() {
 
 // Start implements app.MessageSource.
 func (client *MessageClient) Start(pipe *app.MessagePipe) {
-	defer func() {
-		err := recover()
-		if err != nil {
-			if verr, ok := err.(error); ok {
-				pipe.Error(verr)
-			} else {
-				pipe.Error(fmt.Errorf("%v", err))
-			}
-		}
-	}()
-
 	var (
 		upgrader = websocket.FastHTTPUpgrader{}
 		ctx      = client.ctx
@@ -124,26 +113,15 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 			client.Close()
 		}()
 		defer ws.Close()
-		defer func() {
-			err := recover()
-			if err != nil {
-				if verr, ok := err.(error); ok {
-					pipe.Error(verr)
-				} else {
-					pipe.Error(fmt.Errorf("%v", err))
-				}
-			}
-		}()
 
 		var kontinue bool = true
 		for kontinue {
 			mt, p, err := ws.ReadMessage()
 			if err != nil {
-				// if _, ok := err.(*websocket.CloseError); ok {
-				// 	// pipe.Error(err)
-				// 	// break
-				// 	ws.Close()
-				// }
+				if _, ok := err.(*websocket.CloseError); ok {
+					pipe.Error(err)
+					break
+				}
 				pipe.Error(err)
 				continue
 			}
