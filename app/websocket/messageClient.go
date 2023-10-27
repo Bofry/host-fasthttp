@@ -179,8 +179,8 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 				if err != nil {
 					pipe.Error(err)
 				}
-			case <-client.stop:
-				ws.SetReadLimit(0)
+			// case <-client.stop:
+			// 	ws.SetReadLimit(0)
 			case <-client.done:
 				kontinue = false
 				continue
