@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Bofry/config v0.2.1
-	github.com/Bofry/host v0.2.4-0.20231103090939-781a05e46ff3
+	github.com/Bofry/host v0.2.4
 	github.com/Bofry/structproto v0.2.1
 	github.com/Bofry/trace v0.2.0-alpha.20230703152613
 	github.com/valyala/fasthttp v1.47.0
