@@ -46,7 +46,7 @@ type MessageClient struct {
 func NewMessageClient(ctx *fasthttp.RequestCtx, opts ...MessageClientOption) *MessageClient {
 	return &MessageClient{
 		ctx:     ctx,
-		message: make(chan *Message),
+		message: make(chan *Message, 1000),
 		stop:    make(chan struct{}),
 		done:    make(chan struct{}),
 		options: opts,
