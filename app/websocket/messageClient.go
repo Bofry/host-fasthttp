@@ -119,8 +119,6 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 			mt, p, err := ws.ReadMessage()
 			if err != nil {
 				if _, ok := err.(*websocket.CloseError); ok {
-					fmt.Println("websocket.CloseError")
-
 					pipe.Error(err)
 					break
 				}
@@ -159,20 +157,23 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 			}
 
 			select {
-			case v := <-client.message:
+			case v, ok := <-client.message:
 				fmt.Println("client.message")
+				if ok {
+					fmt.Println("client.message (ok)")
 
-				// err := ws.WriteMessage(v.Type, v.Payload)
+					// err := ws.WriteMessage(v.Type, v.Payload)
 
-				w, err := ws.NextWriter(v.Type)
-				if err != nil {
-					pipe.Error(err)
+					w, err := ws.NextWriter(v.Type)
+					if err != nil {
+						pipe.Error(err)
+					}
+					_, err = w.Write(v.Payload)
+					if err != nil {
+						pipe.Error(err)
+					}
+					w.Close()
 				}
-				_, err = w.Write(v.Payload)
-				if err != nil {
-					pipe.Error(err)
-				}
-				w.Close()
 			case <-client.stop:
 				fmt.Println("client.stop")
 
