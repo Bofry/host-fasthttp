@@ -115,6 +115,38 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 		defer ws.Close()
 
 		var kontinue bool = true
+		go func() {
+			for {
+				select {
+				case v, ok := <-client.message:
+					fmt.Println("client.message")
+					if ok {
+						fmt.Println("client.message (ok)")
+
+						// err := ws.WriteMessage(v.Type, v.Payload)
+
+						w, err := ws.NextWriter(v.Type)
+						if err != nil {
+							pipe.Error(err)
+						}
+						_, err = w.Write(v.Payload)
+						if err != nil {
+							pipe.Error(err)
+						}
+						w.Close()
+					}
+				case <-client.stop:
+					fmt.Println("client.stop")
+
+					ws.SetReadLimit(0)
+				case <-client.done:
+					fmt.Println("client.done")
+
+					kontinue = false
+					break
+				}
+			}
+		}()
 		for kontinue {
 			mt, p, err := ws.ReadMessage()
 			if err != nil {
@@ -155,35 +187,6 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 				}
 				pipe.Forward(client, message)
 			}
-
-			select {
-			case v, ok := <-client.message:
-				fmt.Println("client.message")
-				if ok {
-					fmt.Println("client.message (ok)")
-
-					// err := ws.WriteMessage(v.Type, v.Payload)
-
-					w, err := ws.NextWriter(v.Type)
-					if err != nil {
-						pipe.Error(err)
-					}
-					_, err = w.Write(v.Payload)
-					if err != nil {
-						pipe.Error(err)
-					}
-					w.Close()
-				}
-			case <-client.stop:
-				fmt.Println("client.stop")
-
-				ws.SetReadLimit(0)
-			case <-client.done:
-				fmt.Println("client.done")
-
-				kontinue = false
-				continue
-			}
 		}
 	})
 
@@ -201,10 +204,6 @@ func (client *MessageClient) Send(format app.MessageFormat, payload []byte) erro
 	client.message <- &Message{
 		Type:    mt,
 		Payload: payload,
-	}
-	client.message <- &Message{
-		Type:    mt,
-		Payload: append(payload, []byte("+123")...),
 	}
 	return nil
 }
