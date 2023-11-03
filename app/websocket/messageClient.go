@@ -46,7 +46,7 @@ type MessageClient struct {
 func NewMessageClient(ctx *fasthttp.RequestCtx, opts ...MessageClientOption) *MessageClient {
 	return &MessageClient{
 		ctx:     ctx,
-		message: make(chan *Message, 1000),
+		message: make(chan *Message),
 		stop:    make(chan struct{}),
 		done:    make(chan struct{}),
 		options: opts,
@@ -119,29 +119,15 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 			for {
 				select {
 				case v, ok := <-client.message:
-					fmt.Println("client.message")
 					if ok {
-						fmt.Println("client.message (ok)")
-
-						// err := ws.WriteMessage(v.Type, v.Payload)
-
-						w, err := ws.NextWriter(v.Type)
+						err := ws.WriteMessage(v.Type, v.Payload)
 						if err != nil {
 							pipe.Error(err)
 						}
-						_, err = w.Write(v.Payload)
-						if err != nil {
-							pipe.Error(err)
-						}
-						w.Close()
 					}
 				case <-client.stop:
-					fmt.Println("client.stop")
-
 					ws.SetReadLimit(0)
 				case <-client.done:
-					fmt.Println("client.done")
-
 					kontinue = false
 					break
 				}
@@ -160,8 +146,6 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 
 			switch mt {
 			case websocket.CloseMessage:
-				fmt.Println("websocket.CloseMessage")
-
 				message := &app.Message{
 					Format: app.CLOSE_MESSAGE,
 					Body:   p,
@@ -170,8 +154,6 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 				kontinue = false
 				continue
 			default:
-				fmt.Println("default")
-
 				var message *app.Message
 				format, ok := __MessageTypeMap[mt]
 				if ok {
