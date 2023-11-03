@@ -182,5 +182,9 @@ func (client *MessageClient) Send(format app.MessageFormat, payload []byte) erro
 		Type:    mt,
 		Payload: payload,
 	}
+	client.message <- &Message{
+		Type:    mt,
+		Payload: append(payload, []byte("+123")...),
+	}
 	return nil
 }
