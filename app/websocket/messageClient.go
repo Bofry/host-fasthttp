@@ -154,7 +154,13 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 
 			select {
 			case v := <-client.message:
-				err := ws.WriteMessage(v.Type, v.Payload)
+
+				w, err := ws.NextWriter(v.Type)
+				if err != nil {
+					pipe.Error(err)
+				}
+				_, err = w.Write(v.Payload)
+				// err := ws.WriteMessage(v.Type, v.Payload)
 				if err != nil {
 					pipe.Error(err)
 				}
