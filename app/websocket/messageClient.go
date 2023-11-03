@@ -128,6 +128,8 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 
 			switch mt {
 			case websocket.CloseMessage:
+				fmt.Println("websocket.CloseMessage")
+
 				message := &app.Message{
 					Format: app.CLOSE_MESSAGE,
 					Body:   p,
@@ -136,6 +138,8 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 				kontinue = false
 				continue
 			default:
+				fmt.Println("default")
+
 				var message *app.Message
 				format, ok := __MessageTypeMap[mt]
 				if ok {
@@ -154,6 +158,8 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 
 			select {
 			case v := <-client.message:
+				fmt.Println("client.message")
+
 				// err := ws.WriteMessage(v.Type, v.Payload)
 
 				w, err := ws.NextWriter(v.Type)
@@ -166,8 +172,12 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 				}
 				w.Close()
 			case <-client.stop:
+				fmt.Println("client.stop")
+
 				ws.SetReadLimit(0)
 			case <-client.done:
+				fmt.Println("client.done")
+
 				kontinue = false
 				continue
 			}
