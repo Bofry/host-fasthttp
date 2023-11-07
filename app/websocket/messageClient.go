@@ -116,7 +116,7 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 
 		var kontinue bool = true
 		go func() {
-			for {
+			for kontinue {
 				select {
 				case v, ok := <-client.message:
 					if ok {
@@ -138,6 +138,7 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 			if err != nil {
 				if _, ok := err.(*websocket.CloseError); ok {
 					client.MessageClientInfo.Logger().Println(err)
+					kontinue = false
 					break
 				}
 				pipe.Error(err)
