@@ -137,7 +137,7 @@ func (client *MessageClient) Start(pipe *app.MessagePipe) {
 			mt, p, err := ws.ReadMessage()
 			if err != nil {
 				if _, ok := err.(*websocket.CloseError); ok {
-					pipe.Error(err)
+					client.MessageClientInfo.Logger().Println(err)
 					break
 				}
 				pipe.Error(err)
