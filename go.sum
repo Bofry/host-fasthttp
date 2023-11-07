@@ -16,6 +16,8 @@ github.com/Bofry/host v0.2.4-0.20231103090939-781a05e46ff3 h1:f37+ry1MPoghhVA1Lk
 github.com/Bofry/host v0.2.4-0.20231103090939-781a05e46ff3/go.mod h1:1wjOoioaJg/+K6h01RnBMkkoVccrr3ZAoDNYijkD/cE=
 github.com/Bofry/host v0.2.4 h1:6WSobJ0JoNvF9ECu5lBfud37qAR/+kkyPorZ8jvBqdI=
 github.com/Bofry/host v0.2.4/go.mod h1:1wjOoioaJg/+K6h01RnBMkkoVccrr3ZAoDNYijkD/cE=
+github.com/Bofry/host v0.2.5 h1:zW8dN1nkmefck+QcTA5lC+neanWiVb3SP/LPduS7x1U=
+github.com/Bofry/host v0.2.5/go.mod h1:1wjOoioaJg/+K6h01RnBMkkoVccrr3ZAoDNYijkD/cE=
 github.com/Bofry/structproto v0.2.1 h1:rcYqwH0dyEyAsfLsfejL/7YF9inIxnT/Y7uQfebPXWQ=
 github.com/Bofry/structproto v0.2.1/go.mod h1:j4dn8G1MhaBWHQBljNOkaDk8D5aW3Y/+Q/3hxQRNPKo=
 github.com/Bofry/trace v0.2.0-alpha.20230703152613 h1:UzN4zpq2+2+E8oIs9GpDFlH/7k6oFIcDX07zmgT8Do8=
