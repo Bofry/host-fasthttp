@@ -29,8 +29,10 @@ func TestTextFormatterSuccess(t *testing.T) {
 		}
 	}
 
-	resp, err := testingutil.RunRequestHandler(handler,
-		[]byte("GET / HTTP/1.1\r\nHost: g.com\r\n\r\n"))
+	resp, err := testingutil.InmemoryRequestHandler(handler).
+		Process(
+			[]byte("GET / HTTP/1.1\r\nHost: g.com\r\n\r\n"),
+		)
 
 	if err != nil {
 		t.Fatal(err)
@@ -82,8 +84,10 @@ func TestTextFormatterFailure(t *testing.T) {
 		}
 	}
 
-	resp, err := testingutil.RunRequestHandler(handler,
-		[]byte("GET / HTTP/1.1\r\nHost: g.com\r\n\r\n"))
+	resp, err := testingutil.InmemoryRequestHandler(handler).
+		Process(
+			[]byte("GET / HTTP/1.1\r\nHost: g.com\r\n\r\n"),
+		)
 
 	if err != nil {
 		t.Fatal(err)

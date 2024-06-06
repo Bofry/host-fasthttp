@@ -7,12 +7,14 @@ import (
 	"github.com/valyala/fasthttp/fasthttputil"
 )
 
-func RunRequestHandler(handler fasthttp.RequestHandler, request []byte) (*fasthttp.Response, error) {
+type InmemoryRequestHandler fasthttp.RequestHandler
+
+func (h InmemoryRequestHandler) Process(payload []byte) (*fasthttp.Response, error) {
 	ln := fasthttputil.NewInmemoryListener()
 	defer ln.Close()
 
 	s := &fasthttp.Server{
-		Handler: handler,
+		Handler: fasthttp.RequestHandler(h),
 	}
 
 	go func() {
@@ -27,7 +29,7 @@ func RunRequestHandler(handler fasthttp.RequestHandler, request []byte) (*fastht
 	}
 	defer c.Close()
 
-	_, err = c.Write(request)
+	_, err = c.Write(payload)
 	if err != nil {
 		return nil, err
 	}
