@@ -9,12 +9,30 @@ import (
 
 type InmemoryRequestHandler fasthttp.RequestHandler
 
-func (h InmemoryRequestHandler) Process(payload []byte) (*fasthttp.Response, error) {
+func (h InmemoryRequestHandler) Process(payload []byte, opts ...InmemoryRequestProcessingOption) (*fasthttp.Response, error) {
+	var (
+		worker = &inmemoryRequestWorker{}
+	)
+	for _, opt := range opts {
+		if opt != nil {
+			opt.apply(worker)
+		}
+	}
+
 	ln := fasthttputil.NewInmemoryListener()
 	defer ln.Close()
 
 	s := &fasthttp.Server{
-		Handler: fasthttp.RequestHandler(h),
+		Handler: func(ctx *fasthttp.RequestCtx) {
+			defer func() {
+				err := recover()
+				if err != nil {
+					worker.NoticeError(err)
+				}
+			}()
+
+			fasthttp.RequestHandler(h)(ctx)
+		},
 	}
 
 	go func() {
