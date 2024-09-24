@@ -16,6 +16,7 @@ var _ host.Host = new(FasthttpHost)
 
 type FasthttpHost struct {
 	Server         *Server
+	Listener       net.Listener
 	ListenAddress  string
 	EnableCompress bool
 	Version        string
@@ -67,8 +68,16 @@ func (h *FasthttpHost) Start(ctx context.Context) {
 	h.requestWorker.start(ctx)
 
 	go func() {
-		FasthttpHostLogger.Printf("%% Notice: %s listening on address %s\n", h.Server.Name, h.ListenAddress)
-		if err = s.ListenAndServe(h.ListenAddress); err != nil {
+		if h.Listener == nil {
+			FasthttpHostLogger.Printf("%% Notice: %s listening on address %s\n", h.Server.Name, h.ListenAddress)
+			ln, err := net.Listen("tcp4", h.ListenAddress)
+			if err != nil {
+				FasthttpHostLogger.Fatalf("%% Error: error in ListenAndServe: %v\n", err)
+			}
+			// export
+			h.Listener = ln
+		}
+		if err := s.Serve(h.Listener); err != nil {
 			FasthttpHostLogger.Fatalf("%% Error: error in ListenAndServe: %v\n", err)
 		}
 	}()

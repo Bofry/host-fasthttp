@@ -39,6 +39,10 @@ func TestRecover(t *testing.T) {
 			}).
 			Do(func(f Finalizer) {
 				logger.Print("[albumen] do")
+
+				f.Add(func(err interface{}) {
+					logger.Print("[albumen] Finalizer")
+				})
 				yolk(recover)
 			})
 
@@ -54,6 +58,10 @@ func TestRecover(t *testing.T) {
 			}).
 			Do(func(f Finalizer) {
 				logger.Print("[shell] do")
+
+				f.Add(func(err interface{}) {
+					logger.Print("[shell] Finalizer")
+				})
 				albumen(recover)
 			})
 
@@ -78,12 +86,14 @@ func TestRecover(t *testing.T) {
 		"[albumen] do\n",
 		"[yolk] begin\n",
 		"[yolk] do\n",
-		"[yolk] Finalizer\n",
 		"[yolk] defer\n",
+		"[yolk] Finalizer\n",
 		"[yolk] end\n",
 		"[albumen] defer\n",
+		"[albumen] Finalizer\n",
 		"[albumen] end\n",
 		"[shell] defer\n",
+		"[shell] Finalizer\n",
 		"[shell] end\n",
 		"end\n",
 	}, "")
