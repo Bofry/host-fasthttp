@@ -3,8 +3,8 @@ module github.com/Bofry/host-fasthttp
 go 1.19
 
 require (
-	github.com/Bofry/config v0.2.1
-	github.com/Bofry/host v0.2.6
+	github.com/Bofry/config v0.2.2
+	github.com/Bofry/host v0.2.7
 	github.com/Bofry/structproto v0.2.1
 	github.com/Bofry/trace v0.2.1
 	github.com/valyala/fasthttp v1.51.0
