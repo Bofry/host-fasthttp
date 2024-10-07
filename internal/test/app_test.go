@@ -34,6 +34,8 @@ type RequestManager struct {
 	*TracingRequest       `url:"/Tracing"`
 	*HttpProxyRequest     `url:"/Proxy/http"`
 	*FasthttpProxyRequest `url:"/Proxy/fasthttp"`
+
+	YesManRequest *EchoRequest `url:"/YesMan"  @BindMethod:"POST *SEND"`
 }
 
 func copyFile(src, dst string) error {
@@ -168,6 +170,9 @@ func TestStartup(t *testing.T) {
 		}
 		req.Header.Set("If-None-Match", `W/"wyzzy"`)
 		resp, err := client.Do(req)
+		if err != nil {
+			t.Error(err)
+		}
 		if resp.StatusCode != 200 {
 			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
 		}
@@ -425,6 +430,102 @@ func TestStartup(t *testing.T) {
 		}
 		if string(body) != "OK" {
 			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Hello", string(body))
+		}
+	}
+
+	select {
+	case <-runCtx.Done():
+		if err := starter.Stop(context.Background()); err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+func TestStartup_WithBindMethod(t *testing.T) {
+	/* like
+	 * $ export REDIS_HOST=kubernate-redis:26379
+	 * $ export REDIS_PASSWORD=1234
+	 * $ export REDIS_POOL_SIZE=128
+	 */
+	t.Setenv("REDIS_HOST", "kubernate-redis:26379")
+	t.Setenv("REDIS_PASSWORD", "1234")
+	t.Setenv("REDIS_POOL_SIZE", "128")
+
+	/* like
+	 * $ go run app.go --address ":10094" --compress true --hostname "DemoService"
+	 */
+	os.Args = []string{"example",
+		"--address", ":10094",
+		"--compress", "true",
+		"--hostname", "DemoService"}
+
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+
+	var (
+		errorBuffer bytes.Buffer
+	)
+
+	app := App{}
+	starter := fasthttp.Startup(&app).
+		Middlewares(
+			fasthttp.UseRequestManager(&RequestManager{}),
+			fasthttp.UseXHttpMethodHeader(),
+			fasthttp.UseErrorHandler(func(ctx *fasthttp.RequestCtx, err interface{}) {
+				if fail, ok := err.(*failure.Failure); ok {
+					if fail != nil {
+						response.Json.Failure(ctx, fail, fasthttp.StatusBadRequest)
+					}
+				}
+				if v, ok := err.(error); ok && v.Error() == "FAIL" {
+					response.Json.Failure(ctx, "FAIL", 400)
+				}
+				fmt.Fprintf(&errorBuffer, "err: %+v", err)
+			}),
+			fasthttp.UseTracing(false),
+			fasthttp.UseRewriter(func(ctx *fasthttp.RequestCtx, path *fasthttp.RoutePath) *fasthttp.RoutePath {
+				if strings.HasPrefix(path.Path, "/Echo/") {
+					ctx.Request.URI().QueryArgs().Add("input", path.Path[6:])
+					path.Path = "/Echo"
+				}
+				return path
+			}),
+			fasthttp.UseUnhandledRequestHandler(func(ctx *fasthttp.RequestCtx) {
+				ctx.SetStatusCode(fasthttp.StatusNotFound)
+			}),
+		).
+		ConfigureConfiguration(func(service *config.ConfigurationService) {
+			service.
+				LoadEnvironmentVariables("").
+				LoadYamlFile("config.yaml").
+				LoadCommandArguments()
+		})
+
+	runCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := starter.Start(runCtx); err != nil {
+		t.Error(err)
+	}
+
+	client := &http.Client{}
+	{
+		req, err := http.NewRequest("POST", "http://127.0.0.1:10094/YesMan?input=Can%20you%20hear%20me", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		req.Header.Set("If-None-Match", `W/"wyzzy"`)
+		resp, err := client.Do(req)
+		if err != nil {
+			t.Error(err)
+		}
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			t.Error(err)
+		}
+		if string(body) != "ECHO: Can you hear me" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "ECHO: Can you hear me", string(body))
 		}
 	}
 

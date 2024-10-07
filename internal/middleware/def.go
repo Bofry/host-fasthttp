@@ -12,8 +12,9 @@ var (
 	typeOfHost           = reflect.TypeOf(internal.FasthttpHost{})
 	typeOfRequestHandler = reflect.TypeOf(internal.RequestHandler(nil))
 
-	TAG_URL            = "url"
-	TAG_OPT_EXPAND_ENV = "@ExpandEnv"
+	TAG_URL             = "url"
+	TAG_OPT_EXPAND_ENV  = "@ExpandEnv"
+	TAG_OPT_BIND_METHOD = "@BindMethod"
 
 	NoopLoggingServiceSingleton = NoopLoggingService{}
 	NoopEventLogSingleton       = NoopEventLog(0)
