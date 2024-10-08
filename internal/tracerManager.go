@@ -42,8 +42,10 @@ func (m *TracerManager) GenerateManagedTracer(v interface{}) *trace.SeverityTrac
 	}
 
 	// find
-	if tr, ok := m.tracers[rt]; ok {
-		return tr
+	if m.tracers != nil {
+		if tr, ok := m.tracers[rt]; ok {
+			return tr
+		}
 	}
 
 	// create new
@@ -67,6 +69,10 @@ func (m *TracerManager) createManagedTracer(rt reflect.Type) *trace.SeverityTrac
 		rt.Name(),
 	}, ".")
 
+	// ensure m.tracers not null
+	if m.tracers == nil {
+		m.tracers = make(map[reflect.Type]*trace.SeverityTracer)
+	}
 	tr := m.TracerProvider.Tracer(name)
 	m.tracers[rt] = tr
 
