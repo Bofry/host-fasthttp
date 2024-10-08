@@ -28,7 +28,7 @@ var (
 	defaultSpanExtractor     = tracingutil.RequestCtxSpanExtractor(0)
 	unhandledRequestSpanName = "unknown path"
 
-	GlobalTracerManager *TracerManager // be register from FasthttpHost
+	GlobalTracerManager *TracerManager = NewTraceManager() // be register from FasthttpHost
 
 	FasthttpHostModuleInstance = FasthttpHostModule{}
 
