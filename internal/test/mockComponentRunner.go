@@ -1,6 +1,12 @@
 package test
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/Bofry/host"
+)
+
+var _ host.Runner = new(MockComponentRunner)
 
 type MockComponentRunner struct {
 	prefix string

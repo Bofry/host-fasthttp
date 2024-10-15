@@ -135,7 +135,7 @@ func TestStartup(t *testing.T) {
 				LoadCommandArguments()
 		})
 
-	runCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	runCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	if err := starter.Start(runCtx); err != nil {
 		t.Error(err)
@@ -233,6 +233,9 @@ func TestStartup(t *testing.T) {
 		}
 		req.Header.Set("If-None-Match", `W/"wyzzy"`)
 		resp, err := client.Do(req)
+		if err != nil {
+			t.Error(err)
+		}
 		if resp.StatusCode != 200 {
 			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
 		}
@@ -243,7 +246,7 @@ func TestStartup(t *testing.T) {
 			"    Password: 1234",
 			"    DB: 3",
 			"    PoolSize: 128",
-			"From: SettingResource"}, "\n")
+			"From: SettingRequest"}, "\n")
 		if string(body) != expectedBody {
 			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", expectedBody, string(body))
 		}
@@ -500,7 +503,7 @@ func TestStartup_WithBindMethod(t *testing.T) {
 				LoadCommandArguments()
 		})
 
-	runCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	runCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	if err := starter.Start(runCtx); err != nil {
 		t.Error(err)
@@ -553,7 +556,7 @@ func TestStartup_UseTracing(t *testing.T) {
 	os.Args = []string{"example",
 		"--address", ":10094",
 		"--compress", "true",
-		"--hostname", "DemoService"}
+		"--hostname", "DemoServiceUseTracing"}
 
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
@@ -754,7 +757,7 @@ func TestStartup_UseTracing(t *testing.T) {
 
 		testEndAt := time.Now()
 		var queryUrl = fmt.Sprintf(
-			"%s?end=%d&limit=50&lookback=1h&&service=fasthttp-trace-demo&start=%d",
+			"%s?end=%d&limit=50&lookback=1h&&service=DemoServiceUseTracing&start=%d",
 			app.Config.JaegerQueryUrl,
 			testEndAt.UnixMicro(),
 			testStartAt.UnixMicro())
@@ -811,7 +814,7 @@ func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
 	os.Args = []string{"example",
 		"--address", ":10094",
 		"--compress", "true",
-		"--hostname", "DemoService"}
+		"--hostname", "DemoServiceUseLogging_And_UseTracing"}
 
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
@@ -857,7 +860,7 @@ func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
 				LoadCommandArguments()
 		})
 
-	runCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	runCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	if err := starter.Start(runCtx); err != nil {
 		t.Error(err)
@@ -909,7 +912,7 @@ func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
 
 		testEndAt := time.Now()
 		var queryUrl = fmt.Sprintf(
-			"%s?end=%d&limit=21&lookback=1h&&service=fasthttp-trace-demo&start=%d",
+			"%s?end=%d&limit=21&lookback=1h&&service=DemoServiceUseLogging_And_UseTracing&start=%d",
 			app.Config.JaegerQueryUrl,
 			testEndAt.UnixMicro(),
 			testStartAt.UnixMicro())

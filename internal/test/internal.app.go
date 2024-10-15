@@ -66,15 +66,19 @@ func (app *App) Init() {
 }
 
 func (app *App) OnInit() {
+	fmt.Println("App.OnInit()")
 }
 
 func (app *App) OnInitComplete() {
+	fmt.Println("App.OnInitComplete()")
 }
 
 func (app *App) OnStart(ctx context.Context) {
+	fmt.Println("App.OnStart()")
 }
 
 func (app *App) OnStop(ctx context.Context) {
+	fmt.Println("App.OnStop()")
 	{
 		logger.Printf("stoping TracerProvider")
 		tp := trace.GetTracerProvider()
@@ -102,7 +106,7 @@ func (app *App) ConfigureTracerProvider() {
 	}
 
 	tp, err := trace.JaegerProvider(app.Config.JaegerTraceUrl,
-		trace.ServiceName("fasthttp-trace-demo"),
+		trace.ServiceName(app.Config.ServerName),
 		trace.Environment("go-test"),
 		trace.Pid(),
 	)

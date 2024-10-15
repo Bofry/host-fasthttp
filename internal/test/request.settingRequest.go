@@ -19,8 +19,8 @@ var peekFormat = `Redis:
 From: %s`
 
 func (r *SettingRequest) Init() {
-	fmt.Println("SettingResource.Init()")
-	r.name = "SettingResource"
+	fmt.Println("SettingRequest.Init()")
+	r.name = "SettingRequest"
 }
 
 func (r *SettingRequest) Peek(ctx *fasthttp.RequestCtx) {
