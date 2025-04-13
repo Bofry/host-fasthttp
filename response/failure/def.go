@@ -51,7 +51,7 @@ func ThrowFailure(err error) {
 	} else if wkerr, ok := err.(WellKnownError); ok {
 		failure = &Failure{
 			Message:     wkerr.GetMessage(),
-			Description: wkerr.GetMessage(),
+			Description: wkerr.GetDescription(),
 			Reason:      wkerr.GetReason(),
 			Timestamp:   time.Now().UnixNano() / int64(time.Millisecond),
 		}
