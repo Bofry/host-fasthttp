@@ -16,9 +16,9 @@ const (
 type (
 	WellKnownError interface {
 		error
-		Message() string
-		Description() string
-		Reason() json.RawMessage
+		GetMessage() string
+		GetDescription() string
+		GetReason() json.RawMessage
 	}
 )
 
@@ -50,9 +50,9 @@ func ThrowFailure(err error) {
 		}
 	} else if wkerr, ok := err.(WellKnownError); ok {
 		failure = &Failure{
-			Message:     wkerr.Message(),
-			Description: wkerr.Message(),
-			Reason:      wkerr.Reason(),
+			Message:     wkerr.GetMessage(),
+			Description: wkerr.GetMessage(),
+			Reason:      wkerr.GetReason(),
 			Timestamp:   time.Now().UnixNano() / int64(time.Millisecond),
 		}
 	} else {
