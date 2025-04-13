@@ -1,6 +1,9 @@
 package failure
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 const (
 	INVALID_ARGUMENT  = "INVALID_ARGUMENT"
@@ -8,6 +11,15 @@ const (
 	UNKNOWN_ERROR     = "UNKNOWN_ERROR"
 	NOP               = "NOP"
 	NO_CONTENT        = "NO_CONTENT"
+)
+
+type (
+	WellKnownError interface {
+		error
+		Message() string
+		Description() string
+		Reason() json.RawMessage
+	}
 )
 
 func IsKnownErrorCode(message string) bool {
@@ -35,6 +47,13 @@ func ThrowFailure(err error) {
 		failure = &Failure{
 			Message:   err.Error(),
 			Timestamp: time.Now().UnixNano() / int64(time.Millisecond),
+		}
+	} else if wkerr, ok := err.(WellKnownError); ok {
+		failure = &Failure{
+			Message:     wkerr.Message(),
+			Description: wkerr.Message(),
+			Reason:      wkerr.Reason(),
+			Timestamp:   time.Now().UnixNano() / int64(time.Millisecond),
 		}
 	} else {
 		failure = &Failure{

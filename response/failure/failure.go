@@ -6,10 +6,12 @@ import (
 )
 
 type Failure struct {
-	Message     string `json:"message"`
-	Description string `json:"description"`
-	Timestamp   int64  `json:"timestamp"`
-	Err         error  `json:"-"`
+	Message     string          `json:"message"`
+	Description string          `json:"description,omitempty"`
+	Reason      json.RawMessage `json:"reason,omitempty"`
+	Timestamp   int64           `json:"timestamp"`
+	TraceId     string          `json:"_trace_id,omitempty"`
+	Err         error           `json:"-"`
 }
 
 func (f *Failure) Error() string {

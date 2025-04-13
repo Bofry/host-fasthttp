@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Bofry/host-fasthttp/internal/requestutil"
@@ -88,9 +89,9 @@ func (w *RequestWorker) internalProcessRequest(ctx *RequestCtx, state RequestSta
 					if e, ok := err.(error); ok {
 						sp.Err(e)
 					} else if e, ok := err.(string); ok {
-						sp.Err(fmt.Errorf(e))
+						sp.Err(errors.New(e))
 					} else if e, ok := err.(fmt.Stringer); ok {
-						sp.Err(fmt.Errorf(e.String()))
+						sp.Err(errors.New(e.String()))
 					} else {
 						sp.Err(fmt.Errorf("%+v", err))
 					}
