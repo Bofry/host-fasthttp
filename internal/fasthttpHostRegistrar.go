@@ -34,6 +34,10 @@ func (r *FasthttpHostRegistrar) SetUnhandledRequestHandler(handler RequestHandle
 	r.host.requestWorker.UnhandledRequestHandler = handler
 }
 
+func (r *FasthttpHostRegistrar) SetCorsHeader(enabled bool) {
+	r.host.requestWorker.EnableCorsHeader = enabled
+}
+
 func (r *FasthttpHostRegistrar) SetRequestManager(requestManager interface{}) {
 	r.host.requestManager = requestManager
 }

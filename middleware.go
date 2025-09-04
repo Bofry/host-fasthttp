@@ -47,6 +47,10 @@ func UseRewriter(handler RewriteHandler) host.Middleware {
 	}
 }
 
+func UseCorsHeader() host.Middleware {
+	return &middleware.CorsMiddleware{}
+}
+
 func UseUnhandledRequestHandler(handler RequestHandler) host.Middleware {
 	if handler == nil {
 		panic("argument 'handler' cannot be nil")

@@ -16,7 +16,8 @@ const (
 	DEFAULT_HTTP_PORT   = "80"
 	HEADER_XHTTP_METHOD = "X-Http-Method"
 
-	StatusNotFound = 404
+	StatusNoContent = 204
+	StatusNotFound  = 404
 
 	LOGGER_PREFIX = "[host-fasthttp] "
 )

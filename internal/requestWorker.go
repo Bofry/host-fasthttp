@@ -4,11 +4,27 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/Bofry/host-fasthttp/internal/requestutil"
 	"github.com/Bofry/host-fasthttp/internal/responseutil"
 	"github.com/Bofry/host-fasthttp/internal/tracingutil"
+	"github.com/Bofry/host-fasthttp/response"
 	"github.com/Bofry/trace"
+)
+
+var (
+	CorsStdHttpMethodMap = map[string]bool{
+		"GET":     true,
+		"POST":    true,
+		"OPTIONS": true,
+		"PUT":     true,
+		"HEAD":    true,
+		"DELETE":  true,
+	}
+	CorsStdHttpMethod = []string{
+		"GET", "POST", "OPTIONS", "PUT", "HEAD", "DELETE",
+	}
 )
 
 type RequestWorker struct {
@@ -22,6 +38,7 @@ type RequestWorker struct {
 	ErrorHandler            ErrorHandler
 	UnhandledRequestHandler RequestHandler
 	RewriteHandler          RewriteHandler
+	EnableCorsHeader        bool
 }
 
 func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
@@ -61,6 +78,16 @@ func (w *RequestWorker) ProcessRequest(ctx *RequestCtx) {
 		RoutePath: routePath,
 		Tracer:    tr,
 		Span:      sp,
+	}
+
+	// apply CORS heander
+	if w.EnableCorsHeader {
+		w.setCorsHeader(ctx)
+		if string(ctx.Request.Header.Method()) == "OPTIONS" {
+			ctx.Response.SetStatusCode(StatusNoContent)
+			response.Success(ctx, "", nil)
+			return
+		}
 	}
 
 	w.RequestHandleService.ProcessRequest(ctx, requestState, new(Recover))
@@ -146,6 +173,49 @@ func (w *RequestWorker) rewriteRequest(ctx *RequestCtx, path *RoutePath) *RouteP
 		return handler(ctx, path)
 	}
 	return path
+}
+
+func (w *RequestWorker) setCorsHeader(ctx *RequestCtx) {
+	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
+	ctx.Response.Header.Set("Access-Control-Allow-Headers", strings.Join([]string{
+		"Accept",
+		"Access-Control-Allow-Headers",
+		"Access-Control-Allow-Origin",
+		"Authorization",
+		"Cache-Control",
+		"Content-Type",
+		"crossDomain",
+		"DNT",
+		"withCredentials",
+		"If-Modified-Since",
+		"Keep-Alive",
+		"Strict-Transport-Security",
+		"User-Agent",
+		"X-Access-Token",
+		"X-Application-Name",
+		"X-Content-Type-Options",
+		"X-Forwarded-For",
+		"X-HTTP-Method-Override",
+		"X-Mx-ReqToken",
+		"X-Request-Sent-Time",
+		"X-Requested-With",
+		"X-XSS-Protection",
+	}, ","))
+
+	if string(ctx.Request.Header.Method()) == "OPTIONS" {
+		var requestMethod = string(ctx.Request.Header.Peek("Access-Control-Request-Method"))
+
+		var allowMethods = strings.Join(CorsStdHttpMethod, ",")
+		if len(requestMethod) > 0 {
+			if _, ok := CorsStdHttpMethodMap[requestMethod]; ok {
+				allowMethods = allowMethods + ", " + requestMethod
+			}
+		}
+
+		ctx.Response.Header.Set("Access-Control-Allow-Methods", allowMethods)
+		ctx.Response.Header.Set("Access-Control-Max-Age", "86400")
+	}
 }
 
 func (h *RequestWorker) processError(ctx *RequestCtx, err interface{}) {
