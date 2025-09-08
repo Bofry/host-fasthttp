@@ -25,15 +25,16 @@ var (
 )
 
 type RequestManager struct {
-	*RootRequest          `url:"/"`
-	*EchoRequest          `url:"/Echo"`
-	*SettingRequest       `url:"/Setting"`
-	*AccidentRequest      `url:"/Accident"`
-	*JsonRequest          `url:"/Json"`
-	*TextRequest          `url:"/Text"`
-	*TracingRequest       `url:"/Tracing"`
-	*HttpProxyRequest     `url:"/Proxy/http"`
-	*FasthttpProxyRequest `url:"/Proxy/fasthttp"`
+	*RootRequest                 `url:"/"`
+	*EchoRequest                 `url:"/Echo"`
+	*SettingRequest              `url:"/Setting"`
+	*AccidentRequest             `url:"/Accident"`
+	*JsonRequest                 `url:"/Json"`
+	*TextRequest                 `url:"/Text"`
+	*TracingRequest              `url:"/Tracing"`
+	*HttpProxyRequest            `url:"/Proxy/http"`
+	*FasthttpProxyRequest        `url:"/Proxy/fasthttp"`
+	*ResponseCustomHeaderRequest `url:"/ResponseCustomHeader"`
 
 	YesManRequest *EchoRequest `url:"/YesMan"  @BindMethod:"POST *SEND"`
 }
@@ -967,6 +968,119 @@ func TestStartup_UseLogging_And_UseTracing(t *testing.T) {
 		}, "")
 		if expectedLoggingBuffer != loggingBuffer.String() {
 			t.Errorf("assert loggingBuffer:: expected '%v', got '%v'", expectedLoggingBuffer, loggingBuffer.String())
+		}
+	}
+}
+
+func TestStartup_CustomResponseHeader(t *testing.T) {
+	/* like
+	 * $ export REDIS_HOST=kubernate-redis:26379
+	 * $ export REDIS_PASSWORD=1234
+	 * $ export REDIS_POOL_SIZE=128
+	 */
+	t.Setenv("REDIS_HOST", "kubernate-redis:26379")
+	t.Setenv("REDIS_PASSWORD", "1234")
+	t.Setenv("REDIS_POOL_SIZE", "128")
+
+	/* like
+	 * $ go run app.go --address ":10094" --compress true --hostname "DemoService"
+	 */
+	os.Args = []string{"example",
+		"--address", ":10094",
+		"--compress", "true",
+		"--hostname", "DemoService"}
+
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+
+	var (
+		errorBuffer bytes.Buffer
+	)
+
+	app := App{}
+	starter := fasthttp.Startup(&app).
+		Middlewares(
+			fasthttp.UseRequestManager(&RequestManager{}),
+			fasthttp.UseXHttpMethodHeader(),
+			fasthttp.UseErrorHandler(func(ctx *fasthttp.RequestCtx, err interface{}) {
+				fmt.Fprintf(&errorBuffer, "err: %+v", err)
+			}),
+			fasthttp.UseTracing(false),
+			fasthttp.UseUnhandledRequestHandler(func(ctx *fasthttp.RequestCtx) {
+				ctx.SetStatusCode(fasthttp.StatusNotFound)
+			}),
+			fasthttp.UseCorsHeader(),
+		).
+		ConfigureConfiguration(func(service *config.ConfigurationService) {
+			service.
+				LoadEnvironmentVariables("").
+				LoadYamlFile("config.yaml").
+				LoadCommandArguments()
+		})
+
+	runCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := starter.Start(runCtx); err != nil {
+		t.Error(err)
+	}
+
+	client := &http.Client{}
+	{
+		req, err := http.NewRequest("GET", "http://127.0.0.1:10094/ResponseCustomHeader", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			t.Error(err)
+		}
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		{
+			expectedMyCustomHeader := "foo"
+			if got := resp.Header.Get("My-Custom-Header-Get"); got != expectedMyCustomHeader {
+				t.Errorf("assert 'http.Response.Header[My-Custom-Header-Get]':: expected '%v', got '%v'", expectedMyCustomHeader, got)
+			}
+		}
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			t.Error(err)
+		}
+		if string(body) != "OK" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "OK", string(body))
+		}
+	}
+	{
+		req, err := http.NewRequest("POST", "http://127.0.0.1:10094/ResponseCustomHeader", nil)
+		if err != nil {
+			t.Error(err)
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			t.Error(err)
+		}
+		if resp.StatusCode != 200 {
+			t.Errorf("assert 'http.Response.StatusCode':: expected '%v', got '%v'", 200, resp.StatusCode)
+		}
+		{
+			expectedMyCustomHeader := "foo"
+			if got := resp.Header.Get("My-Custom-Header-Post"); got != expectedMyCustomHeader {
+				t.Errorf("assert 'http.Response.Header[My-Custom-Header-Post]':: expected '%v', got '%v'", expectedMyCustomHeader, got)
+			}
+		}
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			t.Error(err)
+		}
+		if string(body) != "OK" {
+			t.Errorf("assert 'http.Response.Body':: expected '%v', got '%v'", "OK", string(body))
+		}
+	}
+
+	select {
+	case <-runCtx.Done():
+		if err := starter.Stop(context.Background()); err != nil {
+			t.Error(err)
 		}
 	}
 }
