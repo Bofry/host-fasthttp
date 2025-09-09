@@ -5,18 +5,20 @@ go 1.19
 require (
 	github.com/Bofry/config v0.2.2
 	github.com/Bofry/host v0.2.7
-	github.com/Bofry/structproto v0.2.1
+	github.com/Bofry/structproto v0.2.2
 	github.com/Bofry/trace v0.2.1
 	github.com/valyala/fasthttp v1.51.0
 )
 
 require (
+	github.com/Bofry/arg v0.2.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/savsgio/gotils v0.0.0-20230208104028-c358bd845dee // indirect
 	golang.org/x/net v0.20.0 // indirect
 )
 
 require (
+	github.com/Bofry/httparg v0.2.1
 	github.com/Bofry/types v0.1.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/cstockton/go-conv v1.0.0 // indirect

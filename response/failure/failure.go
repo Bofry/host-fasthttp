@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+var _ error = new(Failure)
+
 type Failure struct {
 	Message     string          `json:"message"`
 	Description string          `json:"description,omitempty"`
