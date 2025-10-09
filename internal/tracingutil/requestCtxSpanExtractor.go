@@ -23,5 +23,8 @@ func (RequestCtxSpanExtractor) Extract(ctx context.Context) *trace.SeveritySpan 
 			return span
 		}
 	}
-	return trace.SpanFromContext(ctx)
+	// FIX: Return nil instead of calling trace.SpanFromContext to avoid infinite recursion
+	// When this extractor is registered globally, calling SpanFromContext would trigger
+	// this Extract method again, causing a stack overflow
+	return nil
 }
