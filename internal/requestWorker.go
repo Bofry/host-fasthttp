@@ -201,6 +201,10 @@ func (w *RequestWorker) setCorsHeader(ctx *RequestCtx) {
 		"X-Request-Sent-Time",
 		"X-Requested-With",
 		"X-XSS-Protection",
+		"X-Token",
+		"X-Token-Status",
+		"X-Token-Expires-In",
+		"X-Debug-Seed",
 	}, ","))
 
 	if string(ctx.Request.Header.Method()) == "OPTIONS" {
