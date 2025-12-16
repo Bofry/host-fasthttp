@@ -218,9 +218,13 @@ func (w *RequestWorker) setCorsHeader(ctx *RequestCtx) {
 	}
 }
 
-func (h *RequestWorker) processError(ctx *RequestCtx, err interface{}) {
-	if h.ErrorHandler != nil {
-		h.ErrorHandler(ctx, err)
+func (w *RequestWorker) processError(ctx *RequestCtx, err interface{}) {
+	if w.ErrorHandler != nil {
+		// apply CORS heander
+		if w.EnableCorsHeader {
+			w.setCorsHeader(ctx)
+			w.ErrorHandler(ctx, err)
+		}
 	}
 }
 

@@ -1017,7 +1017,7 @@ func TestStartup_CustomResponseHeader(t *testing.T) {
 				LoadCommandArguments()
 		})
 
-	runCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	runCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	if err := starter.Start(runCtx); err != nil {
 		t.Error(err)
