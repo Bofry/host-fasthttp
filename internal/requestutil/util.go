@@ -47,5 +47,5 @@ func EnableResetResponse(ctx *fasthttp.RequestCtx) {
 }
 
 func CanResetResponse(ctx *fasthttp.RequestCtx) bool {
-	return ctx.UserValue(USER_STORE_KEY_DISABLE_RESET_RESPONSE) == TRUE
+	return ctx.UserValue(USER_STORE_KEY_DISABLE_RESET_RESPONSE) != TRUE
 }
