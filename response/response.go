@@ -1,7 +1,6 @@
 package response
 
 import (
-	"github.com/Bofry/host-fasthttp/internal/requestutil"
 	"github.com/Bofry/host-fasthttp/internal/responseutil"
 	http "github.com/valyala/fasthttp"
 )
@@ -26,9 +25,6 @@ func Success(ctx *http.RequestCtx, contentType string, body []byte) {
 }
 
 func Failure(ctx *http.RequestCtx, contentType string, message []byte, statusCode int) {
-	if requestutil.CanResetResponse(ctx) {
-		ctx.Response.Reset()
-	}
 	ctx.SetStatusCode(statusCode)
 	ctx.Success(contentType, message)
 

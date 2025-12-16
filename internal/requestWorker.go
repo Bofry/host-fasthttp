@@ -221,7 +221,6 @@ func (w *RequestWorker) setCorsHeader(ctx *RequestCtx) {
 func (w *RequestWorker) processError(ctx *RequestCtx, err interface{}) {
 	if w.ErrorHandler != nil {
 		ctx.Response.Reset()
-		requestutil.DisableResetResponse(ctx)
 		// apply CORS heander
 		if w.EnableCorsHeader {
 			w.setCorsHeader(ctx)
